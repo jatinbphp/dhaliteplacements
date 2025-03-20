@@ -1,0 +1,63 @@
+<?php
+
+namespace App\Livewire\PCompany;
+
+use Livewire\Component;
+use App\Models\PCompany;
+
+class PcompanyForm extends Component
+{
+    public $companyId;
+    public $name, $address, $status;
+    public $menu;
+    public $breadcrumb;
+    public $activeMenu;
+
+    public function mount($id = null)
+    {
+        $this->menu = "P Company";
+        $this->breadcrumb = [
+            ['route' => 'p-company', 'title' => 'P Company'],
+        ];
+        $this->activeMenu = 'Add';
+        $this->status = 1;
+        if($id){
+            $this->activeMenu = 'Edit';
+            $company = PCompany::findOrFail($id);
+            $this->companyId = $company->id;
+            $this->name = $company->company_name;
+            $this->address = $company->address;
+            $this->status = $company->status;
+        }
+    }
+
+    public function render()
+    {
+        return view('livewire.p-company.pcompany-form')->extends('layouts.app');
+    }
+
+    public function updateCompany()
+    {
+        $this->validate([
+            'name' => 'required',
+            'address' => 'required',
+        ]);
+
+        $filedData = [
+            'company_name' => $this->name,
+            'address'      => $this->address,
+            'status'       => $this->status,
+        ];
+
+        if($this->companyId){
+            $company = PCompany::findOrFail($this->companyId);
+            $company->update($filedData);
+            session()->flash('success', 'P Company updated successfully!');
+        } else {
+            PCompany::create($filedData);
+            session()->flash('success', 'P Company created successfully!');
+        }
+
+        $this->redirect(route('p-company'), navigate: true);
+    }
+}

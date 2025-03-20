@@ -1,0 +1,124 @@
+.onoffswitch4 {
+    position: relative; width: 96px;
+    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+}
+
+.onoffswitch4-checkbox {
+    display: none;
+}
+
+.onoffswitch4-label {
+    display: block; 
+    overflow: hidden; 
+    cursor: pointer;
+    border: 1px solid #e74c3c; 
+    border-radius: .25rem;
+}
+.onoffswitch4-label:hover {
+    background-color: #e74c3c;
+    border-color: #e74c3c;
+}
+.onoffswitch4-label:hover .onoffswitch4-inner:after {
+    color: #fff;
+}
+
+.onoffswitch4-label:hover .onoffswitch4-inner:before {
+    color: #fff;
+}
+.onoffswitch4-label:hover .onoffswitch4-switch {
+    background-color: var(--light);
+    opacity: .5;
+}
+.onoffswitch4-inner {
+    display: block; 
+    width: 200%; 
+    margin-left: -100%;
+    -moz-transition: margin 0.3s ease-in 0s; 
+    -webkit-transition: margin 0.3s ease-in 0s;
+    -o-transition: margin 0.3s ease-in 0s; 
+    transition: margin 0.3s ease-in 0s;
+}
+
+.onoffswitch4-inner:before, .onoffswitch4-inner:after {
+    display: block; 
+    float: left; 
+    width: 50%; 
+    height: 34px; 
+    padding: 0; 
+    line-height: 32px;
+    font-size: 16px; 
+    color: white; 
+    font-family: Trebuchet, Arial, sans-serif; 
+    font-weight: bold;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.onoffswitch4-inner:before {
+    content: "Active";
+    padding-left: 15px;
+    color: #28a745;
+}
+
+.onoffswitch4-inner:after {
+    content: "Inactive";
+    padding-right: 9px; 
+    color: #e74c3c;
+    text-align: right;
+}
+
+.onoffswitch4-switch {
+    display: block; 
+    width: 13px; 
+    margin: 0px;
+    background: #e74c3c;
+    position: absolute; 
+    top: 0; 
+    bottom: 0; 
+    right: 82px;
+    border-radius: .25rem;
+    -moz-transition: all 0.3s ease-in 0s; 
+    -webkit-transition: all 0.3s ease-in 0s;
+    -o-transition: all 0.3s ease-in 0s; 
+    transition: all 0.3s ease-in 0s; 
+}
+
+.onoffswitch4-checkbox:checked + .onoffswitch4-label .onoffswitch4-inner {
+    margin-left: 0;
+}
+
+.onoffswitch4-checkbox:checked + .onoffswitch4-label .onoffswitch4-switch {
+    right: 0px; 
+}
+
+.onoffswitch4 input:checked + .onoffswitch4-label .onoffswitch4-switch {
+    right: 1px;
+    background-color: var(--success);
+}
+.onoffswitch4 input:checked + .onoffswitch4-label:hover .onoffswitch4-switch {
+    background-color: var(--light);
+    opacity: .5;
+}
+.onoffswitch4 input:checked + .onoffswitch4-label {
+    border-color: #28a745;
+}
+.onoffswitch4 input:checked +  .onoffswitch4-label:hover {
+    background-color: var(--success);
+    border-color: var(--success);
+}
+
+.dark-mode .onoffswitch4-inner:before {
+    color: #00bc8c;
+}
+
+.dark-mode .onoffswitch4 input:checked + .onoffswitch4-label {
+    border-color: #00bc8c;
+}
+
+.dark-mode .onoffswitch4 input:checked + .onoffswitch4-label:hover {
+    background-color: #00bc8c;
+}
+
+.dark-mode .onoffswitch4 input:checked + .onoffswitch4-label {
+    border-color: #00bc8c;
+}
