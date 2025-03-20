@@ -4,47 +4,60 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\Dashboard;
 use App\Livewire\LCompany;
 use App\Livewire\LCompany\LcompanyForm;
-use App\Livewire\CCompany;
-use App\Livewire\CCompany\CcompanyForm;
+use App\Livewire\BCompany;
+use App\Livewire\BCompany\BcompanyForm;
 use App\Livewire\PCompany;
 use App\Livewire\PCompany\PcompanyForm;
 use App\Livewire\OurCompany;
 use App\Livewire\OurCompany\OurCompanyForm;
+use App\Livewire\ManageCandidate;
+use App\Livewire\ManageCandidate\ManageCandidateForm;
+use App\Livewire\Visa;
+use App\Livewire\Visa\ManageVisaForm;
 
 Route::get('/', Dashboard::class)->name('dashboard');
 
-/* Dashboard Start */
+/* Manage Dashboard Start */
 Route::get('/dashboard', Dashboard::class)->name('dashboard');
-/* Dashboard End */
+/* Manage Dashboard End */
 
-/* L Company Start */
+/* Manage L Company Start */
 Route::get('/l-company', LCompany::class)->name('l-company');
 Route::get('/l-company-data', [LCompany::class, 'getLCompanysData'])->name('l-company.data');
-Route::get('/{id}/edit', LCompany::class)->name('edit');
 Route::get('/company/create', LCompanyForm::class)->name('lcompany.create');
 Route::get('/company/{id}/edit', LCompanyForm::class)->name('lcompany.edit');
-/* L Company End */
+/* Manage L Company End */
 
-/* L Company Start */
-Route::get('/c-company', CCompany::class)->name('c-company');
-Route::get('/c-company-data', [CCompany::class, 'getCCompanysData'])->name('c-company.data');
-Route::get('/{id}/edit', CCompany::class)->name('edit');
-Route::get('/ccompany/create', CcompanyForm::class)->name('ccompany.create');
-Route::get('/ccompany/{id}/edit', CcompanyForm::class)->name('ccompany.edit');
-/* L Company End */
+/* Manage B Company Start */
+Route::get('/b-company', BCompany::class)->name('b-company');
+Route::get('/b-company-data', [BCompany::class, 'getBCompanysData'])->name('b-company.data');
+Route::get('/bcompany/create', BcompanyForm::class)->name('bcompany.create');
+Route::get('/bcompany/{id}/edit', BcompanyForm::class)->name('bcompany.edit');
+/* Manage B Company End */
 
-/* p Company Start */
+/* Manage p Company Start */
 Route::get('/p-company', PCompany::class)->name('p-company');
 Route::get('/p-company-data', [PCompany::class, 'getPCompanysData'])->name('p-company.data');
-Route::get('/{id}/edit', PCompany::class)->name('edit');
 Route::get('/pcompany/create', PcompanyForm::class)->name('pcompany.create');
 Route::get('/pcompany/{id}/edit', PcompanyForm::class)->name('pcompany.edit');
-/* L Company End */
+/* Manage P Company End */
 
-/* Our Company Start */
+/* Manage Our Company Start */
 Route::get('/our-company', OurCompany::class)->name('our-company');
 Route::get('/our-company-data', [OurCompany::class, 'getOurCompanysData'])->name('our-company.data');
-Route::get('/{id}/edit', OurCompany::class)->name('edit');
 Route::get('/our-company/create', OurCompanyForm::class)->name('ourCompany.create');
 Route::get('/our-company/{id}/edit', OurCompanyForm::class)->name('ourCompany.edit');
-/* Our Company End */
+/* Manage Our Company End */
+
+/* Manage Visa Start */
+Route::get('/visa', Visa::class)->name('visa');
+Route::get('/visa-data', [Visa::class, 'getVisaData'])->name('visa.data');
+Route::get('/visa/create', ManageVisaForm::class)->name('visa.create');
+Route::get('/visa/{id}/edit', ManageVisaForm::class)->name('visa.edit');
+/* Manage Visa End */
+
+
+/* Manage Users Start */
+Route::get('candidate', ManageCandidate::class)->name('candidate');
+Route::get('/candidate/create', ManageCandidateForm::class)->name('candidate.create');
+/* Manage Users End */

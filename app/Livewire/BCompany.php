@@ -3,35 +3,34 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use App\Models\LCompany as LCompanyModel;
+use App\Models\BCompany as BCompanyModel;
 use Yajra\DataTables\Facades\DataTables;
 
-
-class LCompany extends Component
+class BCompany extends Component
 {
     public $menu;
     public $breadcrumb;
     public $activeMenu;
 
-    protected $listeners = ['deleteCompany'];
+    protected $listeners = ['deleteBCompany'];
 
     public function render()
     {
-        $this->menu = "L Company";
+        $this->menu = "B Company";
         $this->breadcrumb = [
             ['route' => 'dashboard', 'title' => 'Dashboard'],
         ];
-        $this->activeMenu = 'L-Company';
-        return view('livewire.l-company')->extends('layouts.app');
+        $this->activeMenu = 'B-Company';
+        return view('livewire.b-company')->extends('layouts.app');
     }
 
-    public function getLCompanysData()
+    public function getBCompanysData()
     {
-        return DataTables::of(LCompanyModel::select())
+        return DataTables::of(BCompanyModel::select())
             ->addColumn('actions', function ($row) {
-                return view('livewire.l-company.actions', ['company' => $row, 'type' => 'action']);
+                return view('livewire.b-company.actions', ['company' => $row, 'type' => 'action']);
             })->addColumn('status', function ($row) {
-                return view('livewire.l-company.actions', ['company' => $row, 'type' => 'status']);
+                return view('livewire.b-company.actions', ['company' => $row, 'type' => 'status']);
             })
             ->rawColumns(['actions', 'status'])
             ->make(true);
@@ -40,19 +39,19 @@ class LCompany extends Component
     public function updateStatus($id)
     {
         if($id){
-            $company = LCompanyModel::findOrFail($id);
+            $company = BCompanyModel::findOrFail($id);
             $company->status = !$company->status;
             $company->save();
         }
     }
 
-    public function deleteCompany($companyId)
+    public function deleteBCompany($companyId)
     {
-        $company = LCompanyModel::find($companyId);
+        $company = BCompanyModel::find($companyId);
         
         if ($company) {
             $company->delete();
-            $this->dispatch('companyDeleted');
+            $this->dispatch('bCompanyDeleted');
         }
     }
 }

@@ -20,8 +20,8 @@ class PCompany extends Component
         $this->breadcrumb = [
             ['route' => 'dashboard', 'title' => 'Dashboard'],
         ];
-        $this->activeMenu = 'P-Company';
-        return view('livewire.p-company')->extends('layouts.app')->section('content');
+        $this->activeMenu = 'P Company';
+        return view('livewire.p-company')->extends('layouts.app');
     }
 
     public function getPCompanysData()

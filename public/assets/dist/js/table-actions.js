@@ -18,7 +18,7 @@ $(document).ready(function() {
         "order": [[0, "DESC"]]
     });
 
-    $('#c-Company').DataTable({
+    $('#b-Company').DataTable({
         processing: true,
         serverSide: true,
         ajax: $("#route_name").val(),
@@ -70,6 +70,24 @@ $(document).ready(function() {
             { data: 'company_name', name: 'company_name' },
             { data: 'address', name: 'address' },
             { data: 'phone', name: 'phone' },
+            { data: 'status', name: 'status', orderable: false, searchable: false },
+            { data: 'actions', name: 'actions', orderable: false, searchable: false },
+        ],
+        "order": [[0, "DESC"]]
+    });
+
+    $('#visa').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: $("#route_name").val(),
+        columns: [
+            {
+                data: 'id', name: 'id',
+                render: function(data, type, row) {
+                    return '#' + data; // Prepend '#' to the 'id' data
+                }
+            },
+            { data: 'name', name: 'name' },
             { data: 'status', name: 'status', orderable: false, searchable: false },
             { data: 'actions', name: 'actions', orderable: false, searchable: false },
         ],

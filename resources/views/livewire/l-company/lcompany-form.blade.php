@@ -14,15 +14,13 @@
                     <form wire:submit.prevent="updateCompany">
                         <div class="card-body">
                             <div class="row">
-                                @if($address || 1)
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>Name:</label>
-                                            <input type="text" placeholder="Please Enter L Company Name" wire:model="name" class="form-control">
-                                            @error('name') <span class="text-danger">{{ $message }}</span> @enderror
-                                        </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Name:</label>
+                                        <input type="text" placeholder="Please Enter L Company Name" wire:model="name" class="form-control">
+                                        @error('name') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
-                                @endif
+                                </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Address:</label>

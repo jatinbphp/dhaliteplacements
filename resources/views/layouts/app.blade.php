@@ -11,6 +11,10 @@
         <link rel="stylesheet" href="{{ asset('adminlte/css/responsive.bootstrap4.min.css') }}">
         <link rel="stylesheet" href="{{ asset('adminlte/css/buttons.bootstrap4.min.css') }}">
         <link rel="stylesheet" href="{{ asset('adminlte/css/bootstrap-switch-button.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('adminlte/css/select2.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('adminlte/css/select2-bootstrap4.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('adminlte/css/daterangepicker.css') }}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
         <link rel="stylesheet" href="{{ asset('assets/dist/css/custom.css') }}">
         @livewireStyles
         @yield('css')
@@ -35,7 +39,11 @@
         <script src="{{ asset('adminlte/js/datatables/dataTables.buttons.min.js') }}"></script>
         <script src="{{ asset('adminlte/js/datatables/buttons.bootstrap4.min.js') }}"></script>
         <script src="{{ asset('adminlte/js/bootstrap-switch-button.min.js') }}"></script>
+        <script src="{{ asset('adminlte/js/select2.full.min.js') }}"></script>
         <script src="{{ asset('sweetalert2/dist/sweetalert2.all.min.js') }}"></script>
+        <script src="{{ asset('adminlte/js/moment.min.js') }}"></script>
+        <script src="{{ asset('adminlte/js/daterangepicker.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
         <script src="{{ asset('assets/dist/js/table-actions.js')}}"></script>
 
         <script>

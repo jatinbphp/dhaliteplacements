@@ -9,25 +9,16 @@
             <div class="col-md-12">
                 <div class="card card-info">
                     <div class="card-header">
-                        <h3 class="card-title">{{($companyId) ? 'Edit' : 'Add' }} {{$menu}}</h3>
+                        <h3 class="card-title">{{($visaId) ? 'Edit' : 'Add' }} {{$menu}}</h3>
                     </div>
                     <form wire:submit.prevent="updateCompany">
                         <div class="card-body">
                             <div class="row">
-                                @if($address || 1)
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>Name:</label>
-                                            <input type="text" placeholder="Please Enter C Company Name" wire:model="name" class="form-control">
-                                            @error('name') <span class="text-danger">{{ $message }}</span> @enderror
-                                        </div>
-                                    </div>
-                                @endif
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Address:</label>
-                                        <input type="text" placeholder="Please Enter C Company Address" wire:model="address" class="form-control">
-                                        @error('address') <span class="text-danger">{{ $message }}</span> @enderror
+                                        <label>Name:</label>
+                                        <input type="text" placeholder="Please Enter Visa Name" wire:model="name" class="form-control">
+                                        @error('name') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -44,8 +35,8 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <a href="{{ route('l-company') }}" wire:navigate><button class="btn btn-default" type="button">Back</button></a>
-                                <button type="submit" class="btn btn-primary">{{($companyId) ? 'Update' : 'Add' }}</button>
+                                <a href="{{ route('p-company') }}" wire:navigate><button class="btn btn-default" type="button">Back</button></a>
+                                <button type="submit" class="btn btn-primary">{{($visaId) ? 'Update' : 'Add' }}</button>
                             </div>
                         </div>
                     </form>

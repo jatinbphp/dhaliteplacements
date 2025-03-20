@@ -17,14 +17,14 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Name:</label>
-                                        <input type="text" placeholder="Please Enter P Company Name" wire:model="name" class="form-control">
+                                        <input type="text" placeholder="Please Enter B Company Name" wire:model="name" class="form-control">
                                         @error('name') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Address:</label>
-                                        <input type="text" placeholder="Please Enter P Company Address" wire:model="address" class="form-control">
+                                        <input type="text" placeholder="Please Enter B Company Address" wire:model="address" class="form-control">
                                         @error('address') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
@@ -42,7 +42,7 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <a href="{{ route('p-company') }}" wire:navigate><button class="btn btn-default" type="button">Back</button></a>
+                                <a href="{{ route('b-company') }}" wire:navigate><button class="btn btn-default" type="button">Back</button></a>
                                 <button type="submit" class="btn btn-primary">{{($companyId) ? 'Update' : 'Add' }}</button>
                             </div>
                         </div>

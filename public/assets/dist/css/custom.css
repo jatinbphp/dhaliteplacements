@@ -55,13 +55,13 @@
 }
 
 .onoffswitch4-inner:before {
-    content: "Active";
+    content: attr(data-on-text, "Active");
     padding-left: 15px;
     color: #28a745;
 }
 
 .onoffswitch4-inner:after {
-    content: "Inactive";
+    content: attr(data-off-text, "Inactive");
     padding-right: 9px; 
     color: #e74c3c;
     text-align: right;

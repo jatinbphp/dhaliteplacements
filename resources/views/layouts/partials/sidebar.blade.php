@@ -12,6 +12,12 @@
                         <p>Dashboard</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('candidate') }}" class="nav-link {{ request()->is('candidate') ? 'active' : '' }}" wire:navigate>
+                        <i class="nav-icon fa fa-user"></i>
+                        <p>Candidate</p>
+                    </a>
+                </li>
                 <li class="nav-item {{ request()->is('l-company', 'c-company', 'p-company', 'our-company') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-classic fa-solid fa-building"></i>
@@ -30,9 +36,9 @@
                     </ul>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{ route('c-company') }}" class="nav-link {{ request()->is('c-company') ? 'active' : '' }}" wire:navigate>
+                            <a href="{{ route('b-company') }}" class="nav-link {{ request()->is('b-company') ? 'active' : '' }}" wire:navigate>
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>C Company</p>
+                                <p>B Company</p>
                             </a>
                         </li>
                     </ul>
@@ -40,7 +46,7 @@
                         <li class="nav-item">
                             <a href="{{ route('p-company') }}" class="nav-link {{ request()->is('p-company') ? 'active' : '' }}" wire:navigate>
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>P Company</p>
+                                <p>Pv Company</p>
                             </a>
                         </li>
                     </ul>
@@ -52,6 +58,12 @@
                             </a>
                         </li>
                     </ul>
+                    <li class="nav-item">
+                        <a href="{{ route('visa') }}" class="nav-link {{ request()->is('visa') ? 'active' : '' }}" wire:navigate>
+                            <i class="nav-icon fa fa-passport"></i>
+                            <p>Visa</p>
+                        </a>
+                    </li>
                 </li>
 
                 <!-- Users -->

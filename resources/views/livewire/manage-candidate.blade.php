@@ -14,16 +14,16 @@
                                 <span class="h6 mb-0">Manage {{$menu}}</span>
                             </div>
                             <div class="col-auto">
-                                <a href="{{route('ccompany.create')}}" class="btn btn-sm btn-info" wire:navigate>
+                                <a href="{{route('candidate.create')}}" class="btn btn-sm btn-info" wire:navigate>
                                     <i class="fa fa-plus pr-1"></i> Add New
                                 </a>
                             </div>
                         </div>
                     </div>
 
-                    <input type="hidden" id="route_name" value="{{ route('c-company.data') }}">
+                    <input type="hidden" id="route_name" value="{{ route('b-company.data') }}">
                     <div class="card-body table-responsive" wire:ignore>
-                        <table id="c-Company" class="table table-bordered table-striped datatable-dynamic">
+                        <!-- <table id="Candidate" class="table table-bordered table-striped datatable-dynamic">
                             <thead>
                                 <tr>
                                     <th width="5%">#</th>
@@ -35,7 +35,7 @@
                             </thead>
                             <tbody>
                             </tbody>
-                        </table>
+                        </table> -->
                     </div>
                 </div>
             </div>

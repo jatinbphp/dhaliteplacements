@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CCompany extends Model
+class Visa extends Model
 {
     use HasFactory;
 
@@ -17,8 +17,7 @@ class CCompany extends Model
     
     protected $fillable = [
         'user_id',
-        'company_name',
-        'address',
+        'name',
         'status'
     ];
 
@@ -26,4 +25,9 @@ class CCompany extends Model
         self::STATUS_ACTIVE => 'Active',
         self::STATUS_INACTIVE => 'In Active',
     ];
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', self::STATUS_ACTIVE);
+    }
 }

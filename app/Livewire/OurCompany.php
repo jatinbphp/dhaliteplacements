@@ -22,7 +22,7 @@ class OurCompany extends Component
             ['route' => 'dashboard', 'title' => 'Dashboard'],
         ];
         $this->activeMenu = 'Our-Company';
-        return view('livewire.our-company')->extends('layouts.app')->section('content');
+        return view('livewire.our-company')->extends('layouts.app');
     }
 
     public function getOurCompanysData()
