@@ -122,3 +122,31 @@
 .dark-mode .onoffswitch4 input:checked + .onoffswitch4-label {
     border-color: #00bc8c;
 }
+
+.callout.callout-primary {
+  border-left-color: #17a2b8;
+}
+
+.dark-mode .callout.callout-primary {
+  border-left-color: #3498db;
+}
+.select2-container .select2-selection--single {
+    height: 38px;
+    border: 1px solid #ced4da;
+}
+.select2-container .select2-selection--single .select2-selection__rendered {
+    padding-left: 0;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 36px;
+}
+.dark-mode .select2-container .select2-selection--single {
+    border-color: #6c757d;
+    background-color: #343a40;
+}
+.dark-mode .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #fff;
+}
+.dark-mode .form-control:disabled, .dark-mode .form-control[readonly] {
+    background-color: #5b6167 !important;
+}

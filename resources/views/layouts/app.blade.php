@@ -12,6 +12,7 @@
         <link rel="stylesheet" href="{{ asset('adminlte/css/buttons.bootstrap4.min.css') }}">
         <link rel="stylesheet" href="{{ asset('adminlte/css/bootstrap-switch-button.min.css') }}">
         <link rel="stylesheet" href="{{ asset('adminlte/css/select2.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('adminlte/css/select2.css') }}">
         <link rel="stylesheet" href="{{ asset('adminlte/css/select2-bootstrap4.min.css') }}">
         <link rel="stylesheet" href="{{ asset('adminlte/css/daterangepicker.css') }}">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">

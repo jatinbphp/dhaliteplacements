@@ -60,4 +60,5 @@ Route::get('/visa/{id}/edit', ManageVisaForm::class)->name('visa.edit');
 /* Manage Users Start */
 Route::get('candidate', ManageCandidate::class)->name('candidate');
 Route::get('/candidate/create', ManageCandidateForm::class)->name('candidate.create');
+Route::get('/candidate/{id}/edit', ManageCandidateForm::class)->name('candidate.edit');
 /* Manage Users End */

@@ -21,5 +21,4 @@ class ManageCandidate extends Component
         return view('livewire.manage-candidate')->extends('layouts.app');
     }
 
-
 }
