@@ -60,6 +60,9 @@ class ManageCandidateForm extends Component
     public $recruiter;
     public $isCidAvailable = 3;
     public $oldCandidateData = [];
+    public $showDate = true;
+    public $candidateStatus = [];
+    public $status = 1;
 
     public function mount($id='')
     {
@@ -105,12 +108,14 @@ class ManageCandidateForm extends Component
             $this->marketer      = $candidate->marketer;
             $this->recruiter     = $candidate->recruiter;
             $this->bDueTermsId   = $candidate->b_due_terms_id;
+            $this->status        = $candidate->status;
 
 
             $this->updateLCompany();
             $this->updatePvCompany();
             $this->updateBCompany();
             $this->updateOurCompany();
+            $this->manageDateFileds();
         }
         $this->prepareData();
     }
@@ -152,8 +157,19 @@ class ManageCandidateForm extends Component
             $this->updateBCompany();
         }elseif($propertyName == 'ourCompanyId'){
             $this->updateOurCompany();
+        }elseif($propertyName == 'visaStatusId'){
+            $this->manageDateFileds();
         }
         $this->dispatch('initPlugins');
+    }
+
+    public function manageDateFileds()
+    {
+        $visaStatus = Visa::where('id', $this->visaStatusId)->active()->pluck('name')->first();
+        $this->showDate = true;
+        if(strtolower($visaStatus) == 'citizen'){
+            $this->showDate = false;
+        }
     }
 
     public function updateOurCompany()
@@ -238,6 +254,7 @@ class ManageCandidateForm extends Component
             'marketer'         => $this->marketer,
             'recruiter'        => $this->recruiter,
             'b_due_terms_id'   => $this->bDueTermsId,
+            'status'           => $this->status,
         ];
 
         if($this->candidateId){
@@ -248,24 +265,21 @@ class ManageCandidateForm extends Component
             Candidate::create($filedData);
             session()->flash('success', 'Candidate created successfully!');
         }
-
         $this->redirect(route('candidate'), navigate: true);
+
     }
 
     public function prepareData()
     {
-        $this->candidateOptions = [
-            'w2'     => 'W2',
-            'w2_c2c' => 'W2 & c2c',
-            'c2c'    => 'C2C',
-        ];
+        $this->candidateOptions = Candidate::$candidateType;
 
-        $this->visaStatus     = Visa::active()->pluck('name', 'id');
-        $this->lCompanyData   = LCompany::active()->pluck('company_name', 'id');
-        $this->pvCompanyData  = PCompany::active()->pluck('company_name', 'id');
-        $this->bCompanyData   = BCompany::active()->pluck('company_name', 'id');
-        $this->ourCompanyData = OurCompany::active()->pluck('company_name', 'id');
-        $this->bDueTerms = array_combine(range(15, 75, 5), range(15, 75, 5));
+        $this->visaStatus      = Visa::active()->pluck('name', 'id');
+        $this->lCompanyData    = LCompany::active()->pluck('company_name', 'id');
+        $this->pvCompanyData   = PCompany::active()->pluck('company_name', 'id');
+        $this->bCompanyData    = BCompany::active()->pluck('company_name', 'id');
+        $this->ourCompanyData  = OurCompany::active()->pluck('company_name', 'id');
+        $this->bDueTerms       = array_combine(range(15, 75, 5), range(15, 75, 5));
+        $this->candidateStatus = Candidate::$candidateStatus;
     }
 
     public function checkExistiongCid()

@@ -14,6 +14,8 @@ use App\Livewire\ManageCandidate;
 use App\Livewire\ManageCandidate\ManageCandidateForm;
 use App\Livewire\Visa;
 use App\Livewire\Visa\ManageVisaForm;
+use App\Livewire\ManageVisaCandidate;
+use App\Livewire\ManageVisaCandidate\VisaCandidateForm;
 
 Route::get('/', Dashboard::class)->name('dashboard');
 
@@ -57,8 +59,13 @@ Route::get('/visa/{id}/edit', ManageVisaForm::class)->name('visa.edit');
 /* Manage Visa End */
 
 
-/* Manage Users Start */
+/* Manage Candidate Start */
 Route::get('candidate', ManageCandidate::class)->name('candidate');
+Route::get('/candidate-data', [ManageCandidate::class, 'getCandidateData'])->name('candidate.data');
 Route::get('/candidate/create', ManageCandidateForm::class)->name('candidate.create');
 Route::get('/candidate/{id}/edit', ManageCandidateForm::class)->name('candidate.edit');
-/* Manage Users End */
+
+Route::get('visa-candidate', ManageVisaCandidate::class)->name('visa-candidate');
+Route::get('/visa-candidate-data', [ManageVisaCandidate::class, 'getVisaCandidateData'])->name('visa-candidate.data');
+Route::get('/visa-candidate/{id}/edit', VisaCandidateForm::class)->name('visa-candidate.edit');
+/* Manage Candidate End */

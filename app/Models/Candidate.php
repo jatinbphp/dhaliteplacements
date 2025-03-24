@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
+use App\Models\Visa;
+use App\Models\BCompany;
 
 class Candidate extends Model
 {
@@ -41,6 +43,7 @@ class Candidate extends Model
         'marketer',
         'recruiter',
         'b_due_terms_id',
+        'status',
     ];
 
     protected $casts = [
@@ -48,6 +51,29 @@ class Candidate extends Model
         'visa_end_date' => 'date',
         'id_start_date' => 'date',
         'id_end_date' => 'date',
+    ];
+
+    const STATUS_ACTIVE = 1;
+    const STATUS_PROJECT_END = 2;
+    const STATUS_CLEAR = 3;
+    const STATUS_NOT_CLEAR = 4;
+
+    const STATUS_ACTIVE_TEXT = 'Active';
+    const STATUS_PROJECT_END_TEXT = 'Project End';
+    const STATUS_CLEAR_TEXT = 'Clear';
+    const STATUS_NOT_CLEAR_TEXT = 'Not Clear';
+    
+    public static $candidateType = [
+        'w2'     => 'W2',
+        'w2_c2c' => 'W2 & c2c',
+        'c2c'    => 'C2C',
+    ];
+
+    public static $candidateStatus = [
+        self::STATUS_ACTIVE      => self::STATUS_ACTIVE_TEXT,
+        self::STATUS_PROJECT_END => self::STATUS_PROJECT_END_TEXT,
+        self::STATUS_CLEAR       => self::STATUS_CLEAR_TEXT,
+        self::STATUS_NOT_CLEAR   => self::STATUS_NOT_CLEAR_TEXT,
     ];
 
 
@@ -113,5 +139,15 @@ class Candidate extends Model
         }
 
         return Carbon::parse($value)->format('m-d-Y'); // Convert MySQL YYYY-MM-DD to MM-DD-YYYY
+    }
+
+    public function visa()
+    {
+        return $this->belongsTo(Visa::class, 'id');
+    }
+
+    public function bCompany()
+    {
+        return $this->belongsTo(BCompany::class, 'id');
     }
 }

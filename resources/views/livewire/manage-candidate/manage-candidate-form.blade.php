@@ -21,7 +21,7 @@
                                     <div class="form-group">
                                         <label>Select Type: <span class="text-danger">*</span></label>
                                         <div wire:ignore>    
-                                            <select class="form-control select2" data-placeholder="Please Select Type" wire:model="candidateType">
+                                            <select class="form-control select-data" data-placeholder="Please Select Type" wire:model="candidateType">
                                                 <option></option>
                                                 @foreach($candidateOptions as $key => $value)
                                                     <option value="{{ $key }}">{{ $value }}</option>
@@ -36,7 +36,7 @@
                                         <div class="form-group">
                                             <label>L Company: <span class="text-danger">*</span></label>
                                             <div wire:ignore>    
-                                                <select class="form-control select2" data-placeholder="Please Select L Company" wire:model='lCompanyId'>
+                                                <select class="form-control select-data" data-placeholder="Please Select L Company" wire:model='lCompanyId'>
                                                     <option></option>
                                                     @foreach($lCompanyData as $key => $value)
                                                         <option value="{{ $key }}">{{ $value }}</option>
@@ -92,7 +92,7 @@
                                     <div class="form-group">
                                         <label>Select Visa Status: <span class="text-danger">*</span></label>
                                         <div wire:ignore>
-                                            <select class="form-control select2" data-placeholder="Please Select Visa" wire:model='visaStatusId'>
+                                            <select class="form-control select-data" data-placeholder="Please Select Visa" wire:model='visaStatusId'>
                                                 <option></option>
                                                 @foreach($visaStatus as $key => $value)
                                                     <option value="{{ $key }}">{{ $value }}</option>
@@ -102,34 +102,36 @@
                                         @error('visaStatusId') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Visa Start: <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control datepicker" placeholder="Please Select Visa Start Date" wire:model='visaStartDate' id="visaStartDate">
-                                        @error('visaStartDate') <span class="text-danger">{{ $message }}</span> @enderror
+                                @if($showDate)
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Visa Start: <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control datepicker" placeholder="Please Select Visa Start Date" wire:model='visaStartDate' id="visaStartDate">
+                                            @error('visaStartDate') <span class="text-danger">{{ $message }}</span> @enderror
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Visa End: <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control datepicker" placeholder="Please Select Visa End Date" wire:model='visaEndDate' id="visaEndDate">
-                                        @error('visaEndDate') <span class="text-danger">{{ $message }}</span> @enderror
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Visa End: <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control datepicker" placeholder="Please Select Visa End Date" wire:model='visaEndDate' id="visaEndDate">
+                                            @error('visaEndDate') <span class="text-danger">{{ $message }}</span> @enderror
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Id Start: <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control datepicker" placeholder="Please Select Id Start Date" wire:model='idStartDate' id="idStartDate">
-                                        @error('idStartDate') <span class="text-danger">{{ $message }}</span> @enderror
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Id Start: <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control datepicker" placeholder="Please Select Id Start Date" wire:model='idStartDate' id="idStartDate">
+                                            @error('idStartDate') <span class="text-danger">{{ $message }}</span> @enderror
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Id End: <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control datepicker" placeholder="Please Select Id End Date" wire:model='idEndDate' id="idEndDate">
-                                        @error('idEndDate') <span class="text-danger">{{ $message }}</span> @enderror
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Id End: <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control datepicker" placeholder="Please Select Id End Date" wire:model='idEndDate' id="idEndDate">
+                                            @error('idEndDate') <span class="text-danger">{{ $message }}</span> @enderror
+                                        </div>
                                     </div>
-                                </div>
+                                @endif
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label>City State: <span class="text-danger">*</span></label>
@@ -201,7 +203,7 @@
                                     <div class="form-group">
                                         <label>Select Pv Company: <span class="text-danger">*</span></label>
                                         <div wire:ignore>    
-                                            <select class="form-control select2" data-placeholder="Please Select Pv Company" wire:model='pvCompanyId'>
+                                            <select class="form-control select-data" data-placeholder="Please Select Pv Company" wire:model='pvCompanyId'>
                                                 <option></option>
                                                 @foreach($pvCompanyData as $key => $value)
                                                     <option value="{{ $key }}">{{ $value }}</option>
@@ -222,7 +224,7 @@
                                     <div class="form-group">
                                         <label>Select B Company: <span class="text-danger">*</span></label>
                                         <div wire:ignore>    
-                                            <select class="form-control select2" data-placeholder="Please Select B Company" wire:model='bCompanyId'>
+                                            <select class="form-control select-data" data-placeholder="Please Select B Company" wire:model='bCompanyId'>
                                                 <option></option>
                                                 @foreach($bCompanyData as $key => $value)
                                                     <option value="{{ $key }}">{{ $value }}</option>
@@ -243,7 +245,7 @@
                                     <div class="form-group">
                                         <label>B Due Terms: <span class="text-danger">*</span></label>
                                         <div wire:ignore>    
-                                            <select class="form-control select2" data-placeholder="Please Select B Due Terms" wire:model='bDueTermsId'>
+                                            <select class="form-control select-data" data-placeholder="Please Select B Due Terms" wire:model='bDueTermsId'>
                                                 <option></option>
                                                 @foreach($bDueTerms as $key => $value)
                                                     <option value="{{ $key }}">{{ $value }}</option>
@@ -271,7 +273,7 @@
                                     <div class="form-group">
                                         <label>Select Our Company: <span class="text-danger">*</span></label>
                                         <div wire:ignore>    
-                                            <select class="form-control select2" data-placeholder="Please Select Our Company" wire:model='ourCompanyId'>
+                                            <select class="form-control select-data" data-placeholder="Please Select Our Company" wire:model='ourCompanyId'>
                                                 <option></option>
                                                 @foreach($ourCompanyData as $key => $value)
                                                     <option value="{{ $key }}">{{ $value }}</option>
@@ -335,6 +337,21 @@
                                         @error('recruiter') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
+                                @if($candidateId)
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Select Candidate Status: <span class="text-danger">*</span></label>
+                                            <div wire:ignore>
+                                                <select class="form-control select-data" wire:model='status'>
+                                                    @foreach($candidateStatus as $key => $value)
+                                                        <option value="{{ $key }}">{{ $value }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            @error('status') <span class="text-danger">{{ $message }}</span> @enderror
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                             <div class="card-footer p">
                                 <a href="{{ route('candidate') }}" wire:navigate><button class="btn btn-default" type="button">Back</button></a>
@@ -350,50 +367,52 @@
 @section('js')
 <script>
     $(document).ready(function () {
-        let startVisaDate = flatpickr("#visaStartDate", {
-            dateFormat: "m-d-Y",
-            onChange: function(selectedDates, dateStr) {
-                endVisaDate.set('minDate', dateStr); // Disable dates before start date in end date picker
-                Livewire.dispatch('updatedVisaStartDate', dateStr);
-            }
-        });
-
-        let endVisaDate = flatpickr("#visaEndDate", {
-            dateFormat: "m-d-Y",
-            onChange: function(selectedDates, dateStr) {
-                startVisaDate.set('maxDate', dateStr); // Disable dates after end date in start date picker
-                Livewire.dispatch('updatedVisaEndDate', dateStr);
-            }
-        });
-
-        let startIdDateP = flatpickr("#idStartDate", {
-            dateFormat: "m-d-Y",
-            onChange: function(selectedDates, dateStr) {
-                endIdDate.set('minDate', dateStr); // Disable dates before start date in end date picker
-                Livewire.dispatch('updatedVisaStartDate', dateStr);
-            }
-        });
-
-        let endIdDate = flatpickr("#idEndDate", {
-            dateFormat: "m-d-Y",
-            onChange: function(selectedDates, dateStr) {
-                startIdDateP.set('maxDate', dateStr); // Disable dates after end date in start date picker
-                Livewire.dispatch('updatedVisaEndDate', dateStr);
-            }
-        });
         function initPlugins() {
-            $('.select2').each(function () {
-                let placeholderText = $(this).data('placeholder') || 'Please select an option'; // Default if not set
-
-                $(this).select2({
-                    placeholder: placeholderText,
-                    allowClear: true // Optional: allows clearing the selection
-                });
+            $('.select-data').each(function () {
+                let $this = $(this);
+                if (!$this.data('select2')) {
+                    $this.select2({
+                        placeholder: $this.data('placeholder') || 'Please select an option',
+                        allowClear: true
+                    });
+                }
             });
 
-            $('.select2').on('change', function (e) {
+            $('.select-data').on('change', function (e) {
                 let fieldName = $(this).attr('wire:model');
                 @this.set(fieldName, $(this).val());
+            });
+
+            let startVisaDate = flatpickr("#visaStartDate", {
+                dateFormat: "m-d-Y",
+                onChange: function(selectedDates, dateStr) {
+                    endVisaDate.set('minDate', dateStr);
+                    Livewire.dispatch('updatedVisaStartDate', dateStr);
+                }
+            });
+
+            let endVisaDate = flatpickr("#visaEndDate", {
+                dateFormat: "m-d-Y",
+                onChange: function(selectedDates, dateStr) {
+                    startVisaDate.set('maxDate', dateStr);
+                    Livewire.dispatch('updatedVisaEndDate', dateStr);
+                }
+            });
+
+            let startIdDateP = flatpickr("#idStartDate", {
+                dateFormat: "m-d-Y",
+                onChange: function(selectedDates, dateStr) {
+                    endIdDate.set('minDate', dateStr);
+                    Livewire.dispatch('updatedVisaStartDate', dateStr);
+                }
+            });
+
+            let endIdDate = flatpickr("#idEndDate", {
+                dateFormat: "m-d-Y",
+                onChange: function(selectedDates, dateStr) {
+                    startIdDateP.set('maxDate', dateStr);
+                    Livewire.dispatch('updatedVisaEndDate', dateStr);
+                }
             });
         }
 

@@ -12,11 +12,30 @@
                         <p>Dashboard</p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{ route('candidate') }}" class="nav-link {{ request()->is('candidate') ? 'active' : '' }}" wire:navigate>
-                        <i class="nav-icon fa fa-user"></i>
-                        <p>Candidate</p>
+                <li class="nav-item {{ request()->is('candidate', 'visa-candidate') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-classic fa-solid fa-building"></i>
+                        <p>
+                            Candidate
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
                     </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('candidate') }}" class="nav-link {{ request()->is('candidate') ? 'active' : '' }}" wire:navigate>
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Manage Candidate</p>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="visa-candidate" class="nav-link {{ request()->is('visa-candidate') ? 'active' : '' }}" wire:navigate>
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Manage Visa Candidate</p>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
                 <li class="nav-item {{ request()->is('l-company', 'c-company', 'p-company', 'our-company') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link">

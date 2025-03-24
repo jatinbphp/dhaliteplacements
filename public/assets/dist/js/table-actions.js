@@ -93,53 +93,70 @@ $(document).ready(function() {
         ],
         "order": [[0, "DESC"]]
     });
+
+    $('#candidate').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: $("#route_name").val(),
+        columns: [
+            {
+                data: 'id', name: 'id',
+                render: function(data, type, row) {
+                    return '#' + data; // Prepend '#' to the 'id' data
+                }
+            },
+            { data: 'c_name', name: 'c_name' },
+            { data: 'visa', name: 'visa' },
+            { data: 'candidate_type', name: 'candidate_type' },
+            { data: 'b_rate', name: 'b_rate' },
+            { data: 'c_rate', name: 'c_rate' },
+            { data: 'margin', name: 'margin' },
+            { data: 'b_vendor', name: 'b_vendor' },
+            { data: 'hr_ts', name: 'hr_ts' },
+            { data: 'hr_inv', name: 'hr_inv' },
+            { data: 'rem_hrs', name: 'rem_hrs' },
+            { data: 'l_invoiced_date', name: 'l_invoiced_date' },
+            { data: 'last_time', name: 'last_time' },
+            { data: 'client', name: 'client' },
+            { data: 'amt_inv', name: 'amt_inv' },
+            { data: 'mapped_rec_amt', name: 'mapped_rec_amt' },
+            { data: 'hrs_due', name: 'hrs_due' },
+            { data: 'start_date', name: 'start_date' },
+            { data: 'actions', name: 'actions', orderable: false, searchable: false },
+        ],
+        "order": [[0, "DESC"]]
+    });
+
+    $('#visa-candidate').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: $("#route_name").val(),
+        columns: [
+            {
+                data: 'id', name: 'id',
+                render: function(data, type, row) {
+                    return '#' + data; // Prepend '#' to the 'id' data
+                }
+            },
+            { data: 'created_at', name: 'created_at' },
+            { data: 'c_name', name: 'c_name' },
+            { data: 'status', name: 'status' },
+            { data: 'visa', name: 'visa' },
+            { data: 'candidate_type', name: 'candidate_type' },
+            { data: 'start_date', name: 'start_date' },
+            { data: 'last_time_entry', name: 'last_time_entry' },
+            { data: 'c_aggrement', name: 'c_aggrement' },
+            { data: 'mec_sent_date', name: 'mec_sent_date' },
+            { data: 'laptop_rec', name: 'laptop_rec' },
+            { data: 'address', name: 'address' },
+            { data: 'visa_start', name: 'visa_start' },
+            { data: 'visa_end', name: 'visa_end' },
+            { data: 'id_start', name: 'id_start' },
+            { data: 'id_end', name: 'id_end' },
+            { data: 'remaining_visa', name: 'remaining_visa' },
+            { data: 'remaining_id', name: 'remaining_id' },
+            { data: 'actions', name: 'actions', orderable: false, searchable: false },
+        ],
+        "order": [[0, "DESC"]]
+    });
 });
-
-//Delete Record
-// $('.table').on('click', '.deleteRecord', function (event) {
-//     event.preventDefault();
-//     var id = $(this).attr("data-id");
-//     var url = $(this).attr("data-url");
-//     var table = $(this).attr("data-table");
-
-//     Swal.fire({
-//         title: "Are you sure?",
-//         text: "You want to delete this record?",
-//         icon: "warning",
-//         showCancelButton: true,
-//         confirmButtonColor: '#DD6B55',
-//         confirmButtonText: 'Yes, Delete',
-//         cancelButtonText: "No, cancel"
-//     }).then((result) => {
-//         if (result.isConfirmed) {
-//             $.ajax({
-//                 url: url,
-//                 type: "DELETE",
-//                 headers: { 'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content') },
-//                 success: function(data) {
-//                     if (data.success) {
-//                         // Remove the row from the DataTable
-//                         $('#' + table).DataTable().row('.selected').remove().draw(false);
-//                         toastr.success(data.success); // Use success message from the response
-//                     } else {
-//                         toastr.error(data.error || "An error occurred while deleting the user."); // Handle any unexpected errors
-//                     }
-//                 },
-//                 error: function(jqXHR, textStatus, errorThrown) {
-//                     // Handle the error
-//                     if (jqXHR.status === 404) {
-//                         toastr.error("User not found.");
-//                     } else if (jqXHR.status === 400) {
-//                         toastr.error("Deletion of a submitter is not permitted. If you need to remove a submitter, please create a new one instead."); 
-//                     } else if (jqXHR.status === 401) {
-//                         toastr.error("You can not delete this institution because it is currently assigned to users."); 
-//                     } else {
-//                         toastr.error("An unexpected error occurred: " + errorThrown);
-//                     }
-//                 }
-//             });
-//         } else {
-//             toastr.info("Your data is safe!")
-//         }
-//     });
-// });
