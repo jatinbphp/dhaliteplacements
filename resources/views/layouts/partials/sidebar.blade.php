@@ -14,7 +14,7 @@
                 </li>
                 <li class="nav-item {{ request()->is('candidate', 'visa-candidate') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-classic fa-solid fa-building"></i>
+                        <i class="nav-icon fa fa-user"></i>
                         <p>
                             Candidate
                             <i class="right fas fa-angle-left"></i>
@@ -30,7 +30,7 @@
                     </ul>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="visa-candidate" class="nav-link {{ request()->is('visa-candidate') ? 'active' : '' }}" wire:navigate>
+                            <a href="{{ route('visa-candidate') }}" class="nav-link {{ request()->is('visa-candidate') ? 'active' : '' }}" wire:navigate>
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Manage Visa Candidate</p>
                             </a>
@@ -77,12 +77,18 @@
                             </a>
                         </li>
                     </ul>
-                    <li class="nav-item">
-                        <a href="{{ route('visa') }}" class="nav-link {{ request()->is('visa') ? 'active' : '' }}" wire:navigate>
-                            <i class="nav-icon fa fa-passport"></i>
-                            <p>Visa</p>
-                        </a>
-                    </li>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('visa') }}" class="nav-link {{ request()->is('visa') ? 'active' : '' }}" wire:navigate>
+                        <i class="nav-icon fa fa-passport"></i>
+                        <p>Visa</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('time-sheet') }}" class="nav-link {{ request()->is('time-sheet') ? 'active' : '' }}" wire:navigate>
+                        <i class="nav-icon fa fa-clock"></i>
+                        <p>Time Sheet</p>
+                    </a>
                 </li>
 
                 <!-- Users -->

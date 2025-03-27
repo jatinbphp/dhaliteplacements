@@ -16,6 +16,8 @@ use App\Livewire\Visa;
 use App\Livewire\Visa\ManageVisaForm;
 use App\Livewire\ManageVisaCandidate;
 use App\Livewire\ManageVisaCandidate\VisaCandidateForm;
+use App\Livewire\ManageTimeSheet;
+use App\Livewire\ManageTimeSheet\TimeSheetForm;
 
 Route::get('/', Dashboard::class)->name('dashboard');
 
@@ -69,3 +71,10 @@ Route::get('visa-candidate', ManageVisaCandidate::class)->name('visa-candidate')
 Route::get('/visa-candidate-data', [ManageVisaCandidate::class, 'getVisaCandidateData'])->name('visa-candidate.data');
 Route::get('/visa-candidate/{id}/edit', VisaCandidateForm::class)->name('visa-candidate.edit');
 /* Manage Candidate End */
+
+/* Manage Time Sheet Start */
+Route::get('/time-sheet', ManageTimeSheet::class)->name('time-sheet');
+Route::get('/time-sheet-data', [ManageTimeSheet::class, 'getTimeSheetData'])->name('time-sheet.data');
+Route::get('/time-sheet/create', TimeSheetForm::class)->name('time-sheet.create');
+Route::get('/time-sheet/{id}/edit', TimeSheetForm::class)->name('time-sheet.edit');
+/* Manage Time Sheet End */

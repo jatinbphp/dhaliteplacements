@@ -62,6 +62,20 @@
                     mainHeader?.classList.replace('navbar-dark', 'navbar-light');
                     themeIcon?.classList.replace('fa-sun', 'fa-moon');
                 }
+                let isDarkMode = localStorage.getItem("theme") === "dark";
+                let themeLinkId = "flatpickr-dark-theme";
+                if (isDarkMode) {
+                    let link = document.createElement("link");
+                    link.id = themeLinkId;
+                    link.rel = "stylesheet";
+                    link.href = "https://npmcdn.com/flatpickr/dist/themes/dark.css";
+                    document.head.appendChild(link);
+                } else {
+                    let existingLink = document.getElementById(themeLinkId);
+                    if (existingLink) {
+                        existingLink.remove();
+                    }
+                }
             }
 
             document.addEventListener("DOMContentLoaded", function () {

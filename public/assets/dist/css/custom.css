@@ -150,3 +150,55 @@
 .dark-mode .form-control:disabled, .dark-mode .form-control[readonly] {
     background-color: #5b6167 !important;
 }
+
+#calendarModal .flatpickr-calendar, 
+#calendarModal .flatpickr-months, 
+#calendarModal .flatpickr-innerContainer, 
+#calendarModal .flatpickr-rContainer{
+    width: 100% !important;
+    max-width: 500px !important;
+    height: auto !important;
+}
+#calendarModal .flatpickr-calendar {
+    font-size: 18px !important;
+    padding: 10px !important;
+}
+#calendarModal .flatpickr-days, #calendarModal .dayContainer {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+#calendarModal .flatpickr-day {
+    width: 14.29% !important;
+    height: 65px !important;
+    line-height: 65px !important;
+    max-width: 14.29% !important;
+}
+#calendarModal .flatpickr-day .badge-data {
+    bottom: -5px !important;
+    right: 5% !important;
+    position: absolute;
+}
+
+.flatpickr-day.flatpickr-disabled, .flatpickr-day.flatpickr-disabled {
+    color: rgba(57, 57, 57, 0.4);
+}
+
+.flatpickr-day.flatpickr-disabled, .flatpickr-day.flatpickr-disabled:hover{
+    color: rgba(57, 57, 57, 0.4);
+}
+
+.flatpickr-day {
+    color: #000;
+}
+
+.dark-mode .flatpickr-day.flatpickr-disabled, .flatpickr-day.flatpickr-disabled {
+    color: rgba(255,255,255,0.4);
+}
+
+.dark-mode .flatpickr-day.flatpickr-disabled, .flatpickr-day.flatpickr-disabled:hover{
+    color: rgba(255,255,255,0.4);
+}
+
+.dark-mode .flatpickr-day {
+    color: rgba(255,255,255,1);
+}

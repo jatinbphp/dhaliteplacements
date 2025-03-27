@@ -25,7 +25,7 @@ class ManageCandidate extends Component
 
     public function getCandidateData()
     {
-        $candidateType = Candidate::$candidateType;
+        $candidateType = Candidate::candidateType;
         return DataTables::of(Candidate::select()->with('visa', 'bCompany'))
             ->editColumn('candidate_type', function ($row) use ($candidateType) {
                 return $candidateType[$row->candidate_type] ?? '';
@@ -48,6 +48,8 @@ class ManageCandidate extends Component
             })->addColumn('amt_inv', function ($row) {
                 return '';
             })->addColumn('mapped_rec_amt', function ($row) {
+                return '';
+            })->addColumn('due_rec_amt', function ($row) {
                 return '';
             })->addColumn('hrs_due', function ($row) {
                 return '';

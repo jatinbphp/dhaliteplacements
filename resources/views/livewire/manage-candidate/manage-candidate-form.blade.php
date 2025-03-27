@@ -20,7 +20,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Select Type: <span class="text-danger">*</span></label>
-                                        <div wire:ignore>    
+                                        <div wire:ignore>
                                             <select class="form-control select-data" data-placeholder="Please Select Type" wire:model="candidateType">
                                                 <option></option>
                                                 @foreach($candidateOptions as $key => $value)
@@ -257,6 +257,20 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group">
+                                        <label>Billing Options: <span class="text-danger">*</span></label>
+                                        <div wire:ignore>    
+                                            <select class="form-control select-data" data-placeholder="Please Select Billing Option Terms" wire:model='billingTypeId'>
+                                                <option></option>
+                                                @foreach($billingOptions as $key => $value)
+                                                    <option value="{{ $key }}">{{ $value }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        @error('billingTypeId') <span class="text-danger">{{ $message }}</span> @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
                                         <label>B Rate: <span class="text-danger">*</span></label>
                                         <input type="text" placeholder="Please Enter B Rate" class="form-control" wire:model='bRate'>
                                         @error('bRate') <span class="text-danger">{{ $message }}</span> @enderror
@@ -366,61 +380,65 @@
 </div>
 @section('js')
 <script>
-    $(document).ready(function () {
-        function initPlugins() {
-            $('.select-data').each(function () {
-                let $this = $(this);
-                if (!$this.data('select2')) {
-                    $this.select2({
-                        placeholder: $this.data('placeholder') || 'Please select an option',
-                        allowClear: true
-                    });
-                }
+    function initPlugins() {
+            console.log("initPlugins");
+        $('.select-data').each(function () {
+            let $this = $(this);
+            if ($this.next('.select2-container').length) {
+                $this.next('.select2-container').remove();
+                $this.removeClass('select2-hidden-accessible').removeAttr('data-select2-id');
+            }
+
+            $this.select2({
+                placeholder: $this.data('placeholder') || 'Please select an option',
+                allowClear: true
             });
-
-            $('.select-data').on('change', function (e) {
-                let fieldName = $(this).attr('wire:model');
-                @this.set(fieldName, $(this).val());
-            });
-
-            let startVisaDate = flatpickr("#visaStartDate", {
-                dateFormat: "m-d-Y",
-                onChange: function(selectedDates, dateStr) {
-                    endVisaDate.set('minDate', dateStr);
-                    Livewire.dispatch('updatedVisaStartDate', dateStr);
-                }
-            });
-
-            let endVisaDate = flatpickr("#visaEndDate", {
-                dateFormat: "m-d-Y",
-                onChange: function(selectedDates, dateStr) {
-                    startVisaDate.set('maxDate', dateStr);
-                    Livewire.dispatch('updatedVisaEndDate', dateStr);
-                }
-            });
-
-            let startIdDateP = flatpickr("#idStartDate", {
-                dateFormat: "m-d-Y",
-                onChange: function(selectedDates, dateStr) {
-                    endIdDate.set('minDate', dateStr);
-                    Livewire.dispatch('updatedVisaStartDate', dateStr);
-                }
-            });
-
-            let endIdDate = flatpickr("#idEndDate", {
-                dateFormat: "m-d-Y",
-                onChange: function(selectedDates, dateStr) {
-                    startIdDateP.set('maxDate', dateStr);
-                    Livewire.dispatch('updatedVisaEndDate', dateStr);
-                }
-            });
-        }
-
-        initPlugins();
-
-        Livewire.on('initPlugins', function () {
-            setTimeout(initPlugins, 300);
         });
+
+        $('.select-data').on('change', function (e) {
+            let fieldName = $(this).attr('wire:model');
+            @this.set(fieldName, $(this).val());
+        });
+
+        let startVisaDate = flatpickr("#visaStartDate", {
+            dateFormat: "m-d-Y",
+            onChange: function(selectedDates, dateStr) {
+                endVisaDate.set('minDate', dateStr);
+                Livewire.dispatch('updatedVisaStartDate', dateStr);
+            }
+        });
+
+        let endVisaDate = flatpickr("#visaEndDate", {
+            dateFormat: "m-d-Y",
+            onChange: function(selectedDates, dateStr) {
+                startVisaDate.set('maxDate', dateStr);
+                Livewire.dispatch('updatedVisaEndDate', dateStr);
+            }
+        });
+
+        let startIdDateP = flatpickr("#idStartDate", {
+            dateFormat: "m-d-Y",
+            onChange: function(selectedDates, dateStr) {
+                endIdDate.set('minDate', dateStr);
+                Livewire.dispatch('updatedVisaStartDate', dateStr);
+            }
+        });
+
+        let endIdDate = flatpickr("#idEndDate", {
+            dateFormat: "m-d-Y",
+            onChange: function(selectedDates, dateStr) {
+                startIdDateP.set('maxDate', dateStr);
+                Livewire.dispatch('updatedVisaEndDate', dateStr);
+            }
+        });
+    }
+
+    document.addEventListener("livewire:navigated", function () {
+        setTimeout(initPlugins, 300);
+    });
+
+    Livewire.on('initPlugins', function () {
+        setTimeout(initPlugins, 300);
     });
 </script>
 @endsection

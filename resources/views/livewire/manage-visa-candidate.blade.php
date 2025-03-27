@@ -13,39 +13,32 @@
                             <div class="col">
                                 <span class="h6 mb-0">Manage {{$menu}}</span>
                             </div>
-                            <div class="col-auto">
-                                <a href="{{route('candidate.create')}}" class="btn btn-sm btn-info" wire:navigate>
-                                    <i class="fa fa-plus pr-1"></i> Add New
-                                </a>
-                            </div>
                         </div>
                     </div>
-
-                    <input type="hidden" id="route_name" value="{{ route('candidate.data') }}">
+                    <input type="hidden" id="route_name" value="{{ route('visa-candidate.data') }}">
                     <div class="card-body table-responsive" wire:ignore>
-                        <table id="candidate" class="table table-bordered table-striped datatable-dynamic">
+                        <table id="visa-candidate" class="table table-bordered table-striped datatable-dynamic">
                             <thead>
                                 <tr>
                                     <th >#</th>
+                                    <th >Created Date</th>
+                                    <th >C Id</th>
                                     <th>Candidate Name</th>
-                                    <th>C Id</th>
+                                    <th>Status</th>
                                     <th>Visa</th>
                                     <th>W2,C2C</th>
-                                    <th>B Rate</th>
-                                    <th>C Rate</th>
-                                    <th>Margin</th>
-                                    <th>B Vendor</th>
-                                    <th>HR Ts</th>
-                                    <th>Hrs Inv</th>
-                                    <th>Rem Hr</th>
-                                    <th>L Inv</th>
-                                    <th>Last Time</th>
-                                    <th>Client</th>
-                                    <th>Amt inv</th>
-                                    <th>Map$</th>
-                                    <th>Due$</th>
-                                    <th>Hrs Due</th>
                                     <th>Start Date</th>
+                                    <th>Last Time Entry</th>
+                                    <th>C Agmt.</th>
+                                    <th>Mec Sent Date</th>
+                                    <th>Lap Rec.</th>
+                                    <th>Address</th>
+                                    <th>Visa Start</th>
+                                    <th>Visa End</th>
+                                    <th>Id Start</th>
+                                    <th>Id End</th>
+                                    <th>Rem Visa</th>
+                                    <th>Rem Id</th>
                                     <th >Action</th>
                                 </tr>
                             </thead>
@@ -58,3 +51,5 @@
         </div>
     </section>
 </div>
+
+

@@ -20,7 +20,7 @@ class ManageCandidateForm extends Component
     public $candidateOptions = [];
     public $candidateType = '';
     public $lCompanyData = [];
-    public $lCompanyId = '';
+    public $lCompanyId;
     public $selectedLCompanyAddress = '';
     public $visaStatus = [];
     public $pvCompanyData = [];
@@ -62,7 +62,9 @@ class ManageCandidateForm extends Component
     public $oldCandidateData = [];
     public $showDate = true;
     public $candidateStatus = [];
-    public $status = 1;
+    public $status;
+    public $billingOptions = [];
+    public $billingTypeId = Candidate::BILLING_MONTHLY;
 
     public function mount($id='')
     {
@@ -109,6 +111,7 @@ class ManageCandidateForm extends Component
             $this->recruiter     = $candidate->recruiter;
             $this->bDueTermsId   = $candidate->b_due_terms_id;
             $this->status        = $candidate->status;
+            $this->billingTypeId = $candidate->billing_type;
 
 
             $this->updateLCompany();
@@ -186,23 +189,20 @@ class ManageCandidateForm extends Component
 
     public function updateCandidate()
     {
-        $this->validate([
+        $rules = [
             'candidateType'             => 'required|string',
-            'lCompanyId'                => 'required|integer',
-            'selectedLCompanyAddress'   => 'required|string',
-            'lRate'                     => 'required|numeric',
-            'lAggrement'                => 'required|boolean',
+            'lCompanyId'                => 'required_if:candidateType,c2c,w2_c2c',
+            'selectedLCompanyAddress'   => 'required_if:candidateType,c2c,w2_c2c',
+            'lRate'                     => 'required_if:candidateType,c2c,w2_c2c',
+            'lAggrement'                => 'required_if:candidateType,c2c,w2_c2c',
             'cId'                       => [
                 'required',
                 'integer',
                 Rule::unique('candidates', 'c_id')->ignore($this->candidateId),
             ],
             'cName'                     => 'required|string',
+            'showDate'                  => 'required|boolean',
             'visaStatusId'              => 'required|integer',
-            'visaStartDate'             => 'required|string',
-            'visaEndDate'               => 'required|string',
-            'idStartDate'               => 'required|string',
-            'idEndDate'                 => 'required|string',
             'cityState'                 => 'required|string',
             'project'                   => 'required',
             'cRate'                     => 'required|numeric',
@@ -222,7 +222,20 @@ class ManageCandidateForm extends Component
             'marketer'                  => 'required|string',
             'recruiter'                 => 'required|string',
             'bDueTermsId'               => 'required|string',
-        ]);
+            'billingTypeId'             => 'required',
+        ];
+
+
+        if ($this->showDate) {
+            $rules = array_merge($rules, [
+                'visaStartDate' => 'required|string',
+                'visaEndDate'   => 'required|string',
+                'idStartDate'   => 'required|string',
+                'idEndDate'     => 'required|string',
+            ]);
+        }
+
+        $this->validate($rules);
 
         $filedData = [
             'candidate_type'   => $this->candidateType,
@@ -255,6 +268,7 @@ class ManageCandidateForm extends Component
             'recruiter'        => $this->recruiter,
             'b_due_terms_id'   => $this->bDueTermsId,
             'status'           => $this->status,
+            'billing_type'     => $this->billingTypeId
         ];
 
         if($this->candidateId){
@@ -271,7 +285,7 @@ class ManageCandidateForm extends Component
 
     public function prepareData()
     {
-        $this->candidateOptions = Candidate::$candidateType;
+        $this->candidateOptions = Candidate::candidateType;
 
         $this->visaStatus      = Visa::active()->pluck('name', 'id');
         $this->lCompanyData    = LCompany::active()->pluck('company_name', 'id');
@@ -279,7 +293,8 @@ class ManageCandidateForm extends Component
         $this->bCompanyData    = BCompany::active()->pluck('company_name', 'id');
         $this->ourCompanyData  = OurCompany::active()->pluck('company_name', 'id');
         $this->bDueTerms       = array_combine(range(15, 75, 5), range(15, 75, 5));
-        $this->candidateStatus = Candidate::$candidateStatus;
+        $this->candidateStatus = Candidate::candidateStatus;
+        $this->billingOptions  = Candidate::billingOptions;
     }
 
     public function checkExistiongCid()

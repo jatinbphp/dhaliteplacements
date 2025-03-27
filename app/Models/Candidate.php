@@ -44,6 +44,7 @@ class Candidate extends Model
         'recruiter',
         'b_due_terms_id',
         'status',
+        'billing_type',
     ];
 
     protected $casts = [
@@ -53,27 +54,38 @@ class Candidate extends Model
         'id_end_date' => 'date',
     ];
 
-    const STATUS_ACTIVE = 1;
+    const STATUS_ACTIVE      = 1;
     const STATUS_PROJECT_END = 2;
-    const STATUS_CLEAR = 3;
-    const STATUS_NOT_CLEAR = 4;
+    const STATUS_CLEAR       = 3;
+    const STATUS_NOT_CLEAR   = 4;
 
-    const STATUS_ACTIVE_TEXT = 'Active';
+    const STATUS_ACTIVE_TEXT      = 'Active';
     const STATUS_PROJECT_END_TEXT = 'Project End';
-    const STATUS_CLEAR_TEXT = 'Clear';
-    const STATUS_NOT_CLEAR_TEXT = 'Not Clear';
+    const STATUS_CLEAR_TEXT       = 'Clear';
+    const STATUS_NOT_CLEAR_TEXT   = 'Not Clear';
+
+    const BILLING_MONTHLY     = 1;
+    const BILLING_NOT_MONTHLY = 2;
+
+    const BILLING_MONTHLY_TEXT     = 'Monthly';
+    const BILLING_NOT_MONTHLY_TEXT = 'Not Monthly';
     
-    public static $candidateType = [
+    const candidateType = [
         'w2'     => 'W2',
         'w2_c2c' => 'W2 & c2c',
         'c2c'    => 'C2C',
     ];
 
-    public static $candidateStatus = [
+    const candidateStatus = [
         self::STATUS_ACTIVE      => self::STATUS_ACTIVE_TEXT,
         self::STATUS_PROJECT_END => self::STATUS_PROJECT_END_TEXT,
         self::STATUS_CLEAR       => self::STATUS_CLEAR_TEXT,
         self::STATUS_NOT_CLEAR   => self::STATUS_NOT_CLEAR_TEXT,
+    ];
+
+    const billingOptions = [
+        self::BILLING_MONTHLY      => self::BILLING_MONTHLY_TEXT,
+        self::BILLING_NOT_MONTHLY  => self::BILLING_NOT_MONTHLY_TEXT,
     ];
 
 
@@ -97,7 +109,6 @@ class Candidate extends Model
         $this->attributes['id_end_date'] = $this->formatDateForDatabase($value);
     }
 
-    // === ACCESSORS: Convert YYYY-MM-DD -> MM/DD/YYYY when retrieving ===
     public function getVisaStartDateAttribute($value)
     {
         return $this->formatDateForFrontend($value);
@@ -125,9 +136,9 @@ class Candidate extends Model
         }
 
         try {
-            return Carbon::createFromFormat('m-d-Y', $value)->format('Y-m-d'); // Convert MM-DD-YYYY to MySQL format
+            return Carbon::createFromFormat('m-d-Y', $value)->format('Y-m-d');
         } catch (\Exception $e) {
-            \Log::error("Invalid date format: " . $value); // Log incorrect formats for debugging
+            \Log::error("Invalid date format: " . $value);
             return null;
         }
     }
@@ -138,16 +149,16 @@ class Candidate extends Model
             return null;
         }
 
-        return Carbon::parse($value)->format('m-d-Y'); // Convert MySQL YYYY-MM-DD to MM-DD-YYYY
+        return Carbon::parse($value)->format('m-d-Y');
     }
 
     public function visa()
     {
-        return $this->belongsTo(Visa::class, 'id');
+         return $this->belongsTo(Visa::class, 'visa_status_id');
     }
 
     public function bCompany()
     {
-        return $this->belongsTo(BCompany::class, 'id');
+        return $this->belongsTo(BCompany::class, 'b_company_id');
     }
 }
