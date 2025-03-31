@@ -49,7 +49,7 @@ class TimeSheetForm extends Component
             $this->manageTimeSheetData();
             $this->manageWeekData();
         }
-        $this->activeCandidate = Candidate::where('status', Candidate::STATUS_ACTIVE)->pluck('c_name', 'id');
+        $this->activeCandidate = Candidate::pluck('c_name', 'id');
     }
 
     public function render()

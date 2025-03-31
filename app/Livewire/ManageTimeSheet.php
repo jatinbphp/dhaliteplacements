@@ -10,6 +10,7 @@ use Yajra\DataTables\Facades\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TimeSheetExport;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class ManageTimeSheet extends Component
 {
@@ -17,8 +18,11 @@ class ManageTimeSheet extends Component
     public $breadcrumb;
     public $activeMenu;
     public $hoursByDate = [];
+    public $candidateData = [];
+    public $selectedCandidateIds;
+    public $dateRange;
 
-    protected $listeners = ['openCalendarModel'];
+    protected $listeners = ['openCalendarModel', 'reloadDataTable'];
 
     public function render()
     {
@@ -27,37 +31,79 @@ class ManageTimeSheet extends Component
             ['route' => 'dashboard', 'title' => 'Dashboard'],
         ];
         $this->activeMenu = 'Time Sheet';
+        $this->candidateData = Candidate::pluck('c_name', 'id')->toArray();
 
         return view('livewire.manage-time-sheet')->extends('layouts.app');
     }
 
-    public function getTimeSheetData()
+    public function getTimeSheetData(Request $request)
     {
+        \Log::info($request->dateRange);
         $candidateType = Candidate::candidateType;
         return DataTables::of(
             TimeSheet::leftJoin('candidates', 'candidates.id', '=', 'time_sheets.candidate_id')
                 ->leftJoin('visas', 'visas.id', '=', 'candidates.visa_status_id')
                 ->leftJoin('time_sheet_details', 'time_sheet_details.time_sheet_id', '=', 'time_sheets.id')
                 ->selectRaw('
-                    time_sheets.*,
-                    candidates.c_id as candidate_code,
-                    candidates.c_name as candidate_name,
-                    visas.name as visa_name,
-                    (SELECT MAX(ts.week_end_date) FROM time_sheets AS ts WHERE ts.candidate_id = time_sheets.candidate_id) as last_week_end_date,
+                    time_sheets.id,
+                    time_sheets.candidate_id,
+                    time_sheets.week_end_date,
+                    GROUP_CONCAT(DISTINCT candidates.c_id) as candidate_code,
+                    GROUP_CONCAT(DISTINCT candidates.c_name) as candidate_name,
+                    GROUP_CONCAT(DISTINCT visas.name) as visa_name,
+                    (SELECT MAX(ts.week_end_date) 
+                     FROM time_sheets AS ts 
+                     WHERE ts.candidate_id = time_sheets.candidate_id) as last_week_end_date,
                     (SELECT SUM(tsd.hours) 
-                         FROM time_sheet_details AS tsd 
-                         JOIN time_sheets AS ts ON ts.id = tsd.time_sheet_id 
-                         WHERE ts.candidate_id = time_sheets.candidate_id) as total_time_sheet_hours,
+                     FROM time_sheet_details AS tsd 
+                     JOIN time_sheets AS ts ON ts.id = tsd.time_sheet_id 
+                     WHERE ts.candidate_id = time_sheets.candidate_id) as total_time_sheet_hours,
                     candidates.candidate_type as candidate_type,
                     SUM(CASE WHEN time_sheet_details.day_name = "mon" THEN time_sheet_details.hours ELSE 0 END) as mon_hours,
+                    MAX(CASE WHEN time_sheet_details.day_name = "mon" THEN time_sheet_details.date_of_day ELSE NULL END) as mon_date,
+
                     SUM(CASE WHEN time_sheet_details.day_name = "tue" THEN time_sheet_details.hours ELSE 0 END) as tue_hours,
+                    MAX(CASE WHEN time_sheet_details.day_name = "tue" THEN time_sheet_details.date_of_day ELSE NULL END) as tue_date,
+
                     SUM(CASE WHEN time_sheet_details.day_name = "wed" THEN time_sheet_details.hours ELSE 0 END) as wed_hours,
+                    MAX(CASE WHEN time_sheet_details.day_name = "wed" THEN time_sheet_details.date_of_day ELSE NULL END) as wed_date,
+
                     SUM(CASE WHEN time_sheet_details.day_name = "thu" THEN time_sheet_details.hours ELSE 0 END) as thu_hours,
+                    MAX(CASE WHEN time_sheet_details.day_name = "thu" THEN time_sheet_details.date_of_day ELSE NULL END) as thu_date,
+
                     SUM(CASE WHEN time_sheet_details.day_name = "fri" THEN time_sheet_details.hours ELSE 0 END) as fri_hours,
+                    MAX(CASE WHEN time_sheet_details.day_name = "fri" THEN time_sheet_details.date_of_day ELSE NULL END) as fri_date,
+
                     SUM(CASE WHEN time_sheet_details.day_name = "sat" THEN time_sheet_details.hours ELSE 0 END) as sat_hours,
+                    MAX(CASE WHEN time_sheet_details.day_name = "sat" THEN time_sheet_details.date_of_day ELSE NULL END) as sat_date,
+
                     SUM(CASE WHEN time_sheet_details.day_name = "sun" THEN time_sheet_details.hours ELSE 0 END) as sun_hours,
+                    MAX(CASE WHEN time_sheet_details.day_name = "sun" THEN time_sheet_details.date_of_day ELSE NULL END) as sun_date,
+
                     SUM(time_sheet_details.hours) as total_hours
-                ')->groupBy('time_sheets.id')
+                ')
+               ->when(($request->dateRange && !empty($request->dateRange)), function ($query) use ($request) {
+                    if (strpos($request->dateRange, " to ") !== false) {
+                        [$startDate, $endDate] = explode(" to ", $request->dateRange);
+                        $startDate = formateDate($startDate);
+                        $endDate = formateDate($endDate);
+                        $query->whereBetween('time_sheets.week_end_date', [$startDate, $endDate]);
+                    }
+                })
+                ->when(($request->selectedCandidateIds && !empty($request->selectedCandidateIds)), function ($query) use ($request) {
+                    $query->whereIn('time_sheets.candidate_id', $request->selectedCandidateIds);
+                })
+                ->groupBy(
+                    'time_sheets.id', 
+                    'time_sheets.candidate_id',
+                    'time_sheets.week_end_date',
+                    'candidates.id', 
+                    'candidates.c_id', 
+                    'candidates.c_name', 
+                    'candidates.candidate_type', 
+                    'visas.id', 
+                    'visas.name'
+                )
             )->filter(function ($query) {
                 if (request()->has('search') && request('search')['value']) {
                     $search = request('search')['value'];
@@ -145,7 +191,19 @@ class ManageTimeSheet extends Component
 
     public function exportTimeSheetData()
     {
-        return Excel::download(new TimeSheetExport, 'timesheets.xlsx');
+        return Excel::download(new TimeSheetExport($this->selectedCandidateIds, $this->dateRange), 'timesheets.xlsx');
+    }
+
+    public function clearFilter()
+    {
+        $this->selectedCandidateIds = [];
+        $this->dateRange = '';
+        $this->dispatch('refreshDataTable');
+    }
+
+    public function filter()
+    {
+        $this->dispatch('refreshDataTable');
     }
 
 }

@@ -162,29 +162,4 @@ $(document).ready(function() {
         ],
         "order": [[0, "DESC"]]
     });
-
-    $('#time-sheet').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: $("#route_name").val(),
-        columns: [
-            { data: 'week_end_date', name: 'week_end_date' },
-            { data: 'c_id', name: 'c_id' },
-            { data: 'c_name', name: 'c_name' },
-            { data: 'visa', name: 'visa' },
-            { data: 'candidate_type', name: 'candidate_type' },
-            { data: 'hr_ts', name: 'hr_ts' },
-            { data: 'last_time', name: 'last_time' },
-            { data: 'mon', name: 'mon' },
-            { data: 'tue', name: 'tue' },
-            { data: 'wed', name: 'wed' },
-            { data: 'thu', name: 'thu' },
-            { data: 'fri', name: 'fri' },
-            { data: 'sat', name: 'sat' },
-            { data: 'sun', name: 'sun' },
-            { data: 'total_hours', name: 'total_hours' },
-            { data: 'actions', name: 'actions', orderable: false, searchable: false },
-        ],
-        "order": [[0, "DESC"]]
-    });
 });
