@@ -87,7 +87,10 @@ class ManageTimeSheet extends Component
                         [$startDate, $endDate] = explode(" to ", $request->dateRange);
                         $startDate = formateDate($startDate);
                         $endDate = formateDate($endDate);
-                        $query->whereBetween('time_sheets.week_end_date', [$startDate, $endDate]);
+                        //$query->whereBetween('time_sheets.week_end_date', [$startDate, $endDate]);
+                        $query->whereHas('details', function ($subQuery) use ($startDate, $endDate) {
+                            $subQuery->whereBetween('date_of_day', [$startDate, $endDate]);
+                        });
                     }
                 })
                 ->when(($request->selectedCandidateIds && !empty($request->selectedCandidateIds)), function ($query) use ($request) {

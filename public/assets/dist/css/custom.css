@@ -191,7 +191,7 @@
     color: #000;
 }
 
-/*.dark-mode .flatpickr-day.flatpickr-disabled, .flatpickr-day.flatpickr-disabled {
+.dark-mode .flatpickr-day.flatpickr-disabled, .flatpickr-day.flatpickr-disabled {
     color: rgba(255,255,255,0.4);
 }
 
@@ -201,7 +201,7 @@
 
 .dark-mode .flatpickr-day {
     color: rgba(255,255,255,1);
-}*/
+}
 .dark-mode .select2-container--default .select2-selection--multiple {
     border-color: #6c757d;
     background-color: #343a40;

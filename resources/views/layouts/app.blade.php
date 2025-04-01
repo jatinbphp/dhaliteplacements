@@ -44,7 +44,7 @@
         <script src="{{ asset('sweetalert2/dist/sweetalert2.all.min.js') }}"></script>
         <script src="{{ asset('adminlte/js/moment.min.js') }}"></script>
         <script src="{{ asset('adminlte/js/daterangepicker.js') }}"></script>
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script src="{{ asset('adminlte/js/flatpickr.js') }}"></script>
         <script src="{{ asset('assets/dist/js/table-actions.js')}}"></script>
 
         <script>
@@ -68,7 +68,7 @@
                     let link = document.createElement("link");
                     link.id = themeLinkId;
                     link.rel = "stylesheet";
-                    link.href = "https://npmcdn.com/flatpickr/dist/themes/dark.css";
+                    link.href = "{{ asset('adminlte/css/flatpickr-dark.css') }}";
                     document.head.appendChild(link);
                 } else {
                     let existingLink = document.getElementById(themeLinkId);
