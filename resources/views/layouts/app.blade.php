@@ -98,6 +98,23 @@
                 document.addEventListener("livewire:navigated", applyDarkMode);
             });
         </script>
+        <script>
+            window.addEventListener('swal:success', event => {
+                Swal.fire({
+                    icon: 'success',
+                    title: event.detail,
+                    showConfirmButton: true,
+                });
+            });
+
+            window.addEventListener('swal:error', event => {
+                Swal.fire({
+                    icon: 'error',
+                    title: event.detail,
+                    showConfirmButton: true,
+                });
+            });
+        </script>
         @include('common.messages')
         @livewireScripts
         @yield('js')

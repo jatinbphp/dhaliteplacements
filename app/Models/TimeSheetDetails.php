@@ -17,6 +17,7 @@ class TimeSheetDetails extends Model
         'date_of_day',
         'day_name',
         'hours',
+        'invoice_id',
     ];
 
     public function setDateOfDayAttribute($value)
@@ -54,6 +55,6 @@ class TimeSheetDetails extends Model
 
     public function timeSheet()
     {
-        return $this->belongsTo(TimeSheet::class, 'id');
+        return $this->belongsTo(TimeSheet::class);
     }
 }

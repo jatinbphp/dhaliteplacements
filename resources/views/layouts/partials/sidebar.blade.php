@@ -78,6 +78,29 @@
                         </li>
                     </ul>
                 </li>
+                <li class="nav-item {{ request()->is('invoice-tracking', 'invoice') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-file-invoice"></i>
+                        <p>
+                            Invoice
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('invoice') }}" class="nav-link {{ request()->is('invoice') ? 'active' : '' }}" wire:navigate>
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Invoice</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('invoice-tracking') }}" class="nav-link {{ request()->is('invoice-tracking') ? 'active' : '' }}" wire:navigate>
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Invoice Tracking</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
                 <li class="nav-item">
                     <a href="{{ route('visa') }}" class="nav-link {{ request()->is('visa') ? 'active' : '' }}" wire:navigate>
                         <i class="nav-icon fa fa-passport"></i>

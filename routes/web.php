@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Auth\Login;
 use App\Livewire\Dashboard;
 use App\Livewire\LCompany;
 use App\Livewire\LCompany\LcompanyForm;
@@ -18,7 +19,8 @@ use App\Livewire\ManageVisaCandidate;
 use App\Livewire\ManageVisaCandidate\VisaCandidateForm;
 use App\Livewire\ManageTimeSheet;
 use App\Livewire\ManageTimeSheet\TimeSheetForm;
-use App\Livewire\Auth\Login;
+use App\Livewire\ManageInvoiceTracking;
+use App\Livewire\ManageInvoice;
 
 Route::get('/login', Login::class)->name('login')->middleware('guest');
 
@@ -83,6 +85,14 @@ Route::middleware(['auth'])->group(function () {
 	Route::get('/time-sheet/{id}/edit', TimeSheetForm::class)->name('time-sheet.edit');
 	/* Manage Time Sheet End */
 
-	
+	/* Manage Invoice Start */
+	Route::get('/invoice', ManageInvoice::class)->name('invoice');
+	Route::get('/invoice-data', [ManageInvoice::class, 'getInvoiceData'])->name('invoice.data');
+	/* Manage Invoice End */
+
+	/* Manage Invoice Tracking Start */
+	Route::get('/invoice-tracking', ManageInvoiceTracking::class)->name('invoice-tracking');
+	Route::get('/invoice-tracking-data', [ManageInvoiceTracking::class, 'getInvoiceTrackingData'])->name('invoice-tracking.data');
+	/* Manage Invoice Tracking End */
 
 });

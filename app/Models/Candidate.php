@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
 use App\Models\Visa;
 use App\Models\BCompany;
+use App\Models\LCompany;
+use App\Models\OurCompany;
 
 class Candidate extends Model
 {
@@ -160,5 +162,28 @@ class Candidate extends Model
     public function bCompany()
     {
         return $this->belongsTo(BCompany::class, 'b_company_id');
+    }
+
+    public function lCompany()
+    {
+        return $this->belongsTo(LCompany::class, 'l_company_id');
+    }
+
+    public function ourCompany()
+    {
+        return $this->belongsTo(OurCompany::class, 'our_company_id');
+    }
+
+    public function timeSheets()
+    {
+        return $this->hasMany(TimeSheet::class);
+    }
+
+    
+
+    // In TimeSheetDetail model
+    public function timeSheet()
+    {
+        return $this->belongsTo(TimeSheet::class);
     }
 }

@@ -31,9 +31,9 @@ class TimeSheetExport implements FromArray, WithHeadings
     public function array(): array
     {
         $headings = $this->generateHeadings();
-        $this->prepareCandidateWiseTimeSheetData();
+        $this->candidateWiseTimeSheetData = getCandidateWiseTimeSheetData($this->selectedCandidateIds);
         $candidates = Candidate::when(!empty($this->selectedCandidateIds), function ($query) {
-            $query->where('id', $this->selectedCandidateIds);
+            $query->whereIn('id', $this->selectedCandidateIds);
         })->get();
 
         $data = [];
@@ -49,7 +49,7 @@ class TimeSheetExport implements FromArray, WithHeadings
             foreach ($this->datesArray as $date) {
                 if (strpos($date, ' - ') !== false) {
                     [$start, $end] = explode(' - ', $date);
-                    $row[$date] = $this->sumHoursForDateRange($candidateId, $start, $end);
+                    $row[$date] = sumHoursForDateRange($this->candidateWiseTimeSheetData, $candidateId, $start, $end);
                 } else {
                     $row[$date] = $this->candidateWiseTimeSheetData[$candidateId][$date] ?? "0.00";
                 }
@@ -61,26 +61,6 @@ class TimeSheetExport implements FromArray, WithHeadings
             $data[] = $row;
         }
         return $data;
-    }
-
-
-
-    private function sumHoursForDateRange($candidateId, $start, $end) {
-        $startDate = Carbon::createFromFormat('m-d-Y', $start);
-        $endDate = Carbon::createFromFormat('m-d-Y', $end);
-        $total = 0;
-
-        $candidateData = $this->candidateWiseTimeSheetData[$candidateId] ?? [];
-
-        while ($startDate->lte($endDate)) {
-            $formattedDate = $startDate->format('m-d-Y');
-            if (isset($candidateData[$formattedDate])) {
-                $total += (float) $candidateData[$formattedDate];
-            }
-            $startDate->addDay();
-        }
-
-        return number_format($total, 2);
     }
 
     private function generateHeadings()
@@ -97,51 +77,10 @@ class TimeSheetExport implements FromArray, WithHeadings
             $startDate = Carbon::now()->startOfMonth();
             $endDate = Carbon::now()->endOfMonth();
         }
+        $range = getDateRangeArray($startDate, $endDate);
 
-        $headings = [];
-        while ($startDate->lte($endDate)) {
-            $weekEndDate = $startDate->copy()->endOfWeek(Carbon::SUNDAY)->startOfDay();
-            if ($startDate->isMonday() && $endDate->gte($weekEndDate) && $startDate->isSameMonth($weekEndDate)) {
-                $headings[] = 'Week End - ' . $weekEndDate->format('m-d-Y');
-                $this->datesArray[] = $startDate->format('m-d-Y') . ' - ' . $weekEndDate->format('m-d-Y');
-
-                $startDate = $weekEndDate; // Move to the week's end
-            } else {
-                $headings[] = $startDate->format('m-d-Y');
-                $this->datesArray[] = $startDate->format('m-d-Y');
-            }
-
-            $startDate->addDay();
-        }
-
-        $this->headings = $headings;
-        \Log::info($headings);
+        $this->headings = $range['headings'] ?? [];
+        $this->datesArray = $range['datesArray'] ?? [];
         return $this->headings;
-    }
-
-    protected function prepareCandidateWiseTimeSheetData()
-    {
-        $timeSheetData = TimeSheet::with('details')
-            ->when(!empty($this->selectedCandidateIds), function ($query) {
-                $query->whereIn('candidate_id', $this->selectedCandidateIds);
-            })->get()
-            ->toArray();
-
-        foreach($timeSheetData as $data){
-            $candidateId = $data['candidate_id'] ?? '';
-            $timeSheetDetails = $data['details'] ?? [];
-
-            if(!$candidateId || !$timeSheetDetails || !count($timeSheetDetails)){
-                continue;
-            }
-
-            $hoursDetails = [];
-            foreach ($timeSheetDetails as $detail) {
-                $dayOfDate = $detail['date_of_day'] ?? '';
-                $hours = $detail['hours'] ?? '';
-
-                $this->candidateWiseTimeSheetData[$candidateId][$dayOfDate] = $hours;
-            }
-        }
     }
 }
