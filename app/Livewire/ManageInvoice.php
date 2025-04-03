@@ -9,7 +9,7 @@ use App\Models\Invoice;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use Barryvdh\Snappy\Facades\SnappyPdf;
+use Mpdf\Mpdf;
 
 class ManageInvoice extends Component
 {
@@ -208,41 +208,27 @@ class ManageInvoice extends Component
 
     public function generatePdf()
     {
-        $bootstrapCss = '<link rel="stylesheet" href="' . public_path('adminlte/css/bootstrap.min.css') . '">';
-        $adminLteCss = '<link rel="stylesheet" href="' . public_path('adminlte/css/adminlte.min.css') . '">';
 
         $this->invoiceData['pdf'] = 1;
-
         $htmlContent = view('livewire.manage-invoice.invoice-data', $this->invoiceData)->render();
 
         $html = '<!DOCTYPE html>
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>Invoice</title>
-            ' . $bootstrapCss . $adminLteCss . '
         </head>
-        <body>
-            ' . $htmlContent . '
-        </body>
+        <body>' . $htmlContent . '</body>
         </html>';
 
-        $pdf = SnappyPdf::loadHTML($html)
-            ->setPaper('A4')
-            ->setOption('enable-local-file-access', true) // Allow Bootstrap & AdminLTE to load
-            ->setOption('zoom', 1.0) // Prevents layout shrinkage
-            ->setOption('viewport-size', '1280x1024') // Ensures proper rendering
-            ->setOption('disable-smart-shrinking', true) // Forces proper scaling
-            ->setOption('dpi', 300) // High-resolution PDF output
-            ->setOption('margin-top', 10)
-            ->setOption('margin-bottom', 10)
-            ->setOption('margin-left', 10)
-            ->setOption('margin-right', 10);
+        // Fix encoding issues
+        $mpdf = new Mpdf(['mode' => 'utf-8', 'default_font' => 'Arial', 'useAdobeCJK' => true]);
+        $mpdf->WriteHTML($html, \Mpdf\HTMLParserMode::HTML_BODY);
 
         $fileName = $this->invoiceData['candidate']['c_name'] ?? 'invoice';
-        return response()->streamDownload(function () use ($pdf) {
-            echo $pdf->inline('invoice.pdf');
-        }, $fileName.'.pdf');
+
+        return response()->streamDownload(function () use ($mpdf) {
+            echo $mpdf->Output('', 'S');
+        }, $fileName.'.pdf'); 
     }
 
     public function saveInvoice()
