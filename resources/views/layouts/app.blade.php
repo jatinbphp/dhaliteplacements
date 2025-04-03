@@ -102,7 +102,8 @@
             window.addEventListener('swal:success', event => {
                 Swal.fire({
                     icon: 'success',
-                    title: event.detail,
+                    title: 'Success',
+                    html: event.detail,
                     showConfirmButton: true,
                 });
             });
@@ -110,7 +111,17 @@
             window.addEventListener('swal:error', event => {
                 Swal.fire({
                     icon: 'error',
-                    title: event.detail,
+                    title: 'Error',
+                    html: event.detail,
+                    showConfirmButton: true,
+                });
+            });
+
+            window.addEventListener('swal:warning', event => {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Warning',
+                    html: event.detail,
                     showConfirmButton: true,
                 });
             });

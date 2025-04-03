@@ -128,6 +128,10 @@ class ManageInvoice extends Component
             ->addColumn('actions', function ($row) {
                 return view('livewire.manage-invoice.actions', ['data' => $row]);
             })
+            ->addColumn('status', function ($row) use ($startDate, $endDate) {
+                $statusData = isPreviousInvoiceDueOrDone($row->id, $startDate, $endDate);
+                return $statusData['status'] ?? 0;
+            })
             ->rawColumns(['actions', 'c_name'])
             ->make(true);
     }
@@ -155,6 +159,12 @@ class ManageInvoice extends Component
                 $formattedStartDate = Carbon::parse($startDate)->format('M jS, Y');
                 $formattedEndDate = Carbon::parse($endDate)->format('M jS, Y');
             }
+        }
+
+        $messageData = isPreviousInvoiceDueOrDone($id, $startDate, $endDate);
+        if($messageData){
+            $this->dispatch('swal:warning', $messageData['message'] ?? 'Something went wrong!');
+            return;
         }
 
         $candidate = Candidate::where('id', $id)->with('lCompany', 'bCompany', 'ourCompany')->first();
@@ -263,8 +273,11 @@ class ManageInvoice extends Component
                 'to_date' => $endDate,
             ]);
 
-            TimeSheetDetails::whereBetween('date_of_day', [$startDate, $endDate])
-                ->update(['invoice_id' => $invoice->id]);
+            TimeSheetDetails::whereHas('timeSheet', function ($query) use ($candidateId) {
+                $query->where('candidate_id', $candidateId);
+            })
+            ->whereBetween('date_of_day', [$startDate, $endDate])
+            ->update(['invoice_id' => $invoice->id]);
 
             $this->dispatch('swal:success', 'Invoice created successfully and linked to timesheets!');
             $this->dispatch('closeModal');

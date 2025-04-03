@@ -63,6 +63,20 @@
                                                     <td>-</td>
                                                 </tr>
                                             </table>
+                                            <div class="mt-3">
+                                                <div class="float-left">
+                                                    <span class="badge bg-danger pr-2">&nbsp;</span>
+                                                    <span class="text-bold align-middle">Previous Invoice Pending</span>
+                                                </div> 
+                                                <div class="float-left ml-2">
+                                                    <span class="badge bg-info pr-2 ">&nbsp;</span>
+                                                    <span class="text-bold align-middle">All Dates Invoiced</span>  
+                                                </div> 
+                                                <div class="float-left ml-2">
+                                                    <span class="badge bg-warning pr-2">&nbsp;</span>
+                                                    <span class="text-bold align-middle">Partial Dates Invoiced</span> 
+                                                </div> 
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -176,6 +190,15 @@
                 { data: 'generated_date', name: 'generated_date' },
                 { data: 'actions', name: 'actions', orderable: false, searchable: false },
             ],
+            createdRow: function (row, data, dataIndex) {
+                if (data.status == '1') {
+                    $(row).addClass('table-danger');
+                } else if (data.status == '2') {
+                    $(row).addClass('table-info');
+                } else if (data.status == '3') {
+                    $(row).addClass('table-warning');
+                }
+            },
             "order": [[0, "DESC"]]
         });
 
