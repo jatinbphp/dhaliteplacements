@@ -68,14 +68,20 @@ class ManageInvoice extends Component
                     }
                 }]);
             }])
+            // ->when(($startDate && $endDate), function ($query) use ($startDate, $endDate) {
+            //     $query->whereHas('timeSheets.details', function ($q) use ($startDate, $endDate) {
+            //         $q->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
+            //     });
+            // })
             ->when(($startDate && $endDate), function ($query) use ($startDate, $endDate) {
-                // Apply the date filter on timeSheets only if both dates are provided
-                $query->whereHas('timeSheets.details', function ($q) use ($startDate, $endDate) {
-                    $q->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
-                });
-            })->when(($startDate && $endDate), function ($query) use ($startDate, $endDate) {
-                $query->whereHas('timeSheets.details', function ($q) use ($startDate, $endDate) {
-                    $q->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
+                $query->where(function ($subQuery) use ($startDate, $endDate) {
+                    $subQuery->whereHas('timeSheets.details', function ($q) use ($startDate, $endDate) {
+                        $q->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
+                    })
+                    ->orWhereHas('timeSheets.details', function ($q) use ($startDate) {
+                        $q->whereNull('invoice_id')
+                          ->where('time_sheet_details.date_of_day', '<', $startDate);
+                    });
                 });
             })
             ->when($billingOption && $billingOption != 'both', function ($query) use ($billingOption) {
@@ -220,7 +226,6 @@ class ManageInvoice extends Component
         <body>' . $htmlContent . '</body>
         </html>';
 
-        // Fix encoding issues
         $mpdf = new Mpdf(['mode' => 'utf-8', 'default_font' => 'Arial', 'useAdobeCJK' => true]);
         $mpdf->WriteHTML($html, \Mpdf\HTMLParserMode::HTML_BODY);
 

@@ -21,6 +21,7 @@ use App\Livewire\ManageTimeSheet;
 use App\Livewire\ManageTimeSheet\TimeSheetForm;
 use App\Livewire\ManageInvoiceTracking;
 use App\Livewire\ManageInvoice;
+use App\Livewire\ManageDateWiseInvoice;
 
 Route::get('/login', Login::class)->name('login')->middleware('guest');
 
@@ -93,6 +94,11 @@ Route::middleware(['auth'])->group(function () {
 	/* Manage Invoice Tracking Start */
 	Route::get('/invoice-tracking', ManageInvoiceTracking::class)->name('invoice-tracking');
 	Route::get('/invoice-tracking-data', [ManageInvoiceTracking::class, 'getInvoiceTrackingData'])->name('invoice-tracking.data');
+	/* Manage Invoice Tracking End */
+
+	/* Manage Invoice Tracking Start */
+	Route::get('/date-wise-invoice-tracking', ManageDateWiseInvoice::class)->name('date-wise-invoice-tracking');
+	Route::get('/date-wise-invoice-tracking-data', [ManageDateWiseInvoice::class, 'getDateWiseInvoiceTrackingData'])->name('date-wise-invoice-tracking.data');
 	/* Manage Invoice Tracking End */
 
 });

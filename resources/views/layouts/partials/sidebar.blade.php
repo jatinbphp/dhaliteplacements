@@ -78,7 +78,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="nav-item {{ request()->is('invoice-tracking', 'invoice') ? 'menu-open' : '' }}">
+                <li class="nav-item {{ request()->is('invoice-tracking', 'invoice', 'date-wise-invoice-tracking') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-file-invoice"></i>
                         <p>
@@ -97,6 +97,12 @@
                             <a href="{{ route('invoice-tracking') }}" class="nav-link {{ request()->is('invoice-tracking') ? 'active' : '' }}" wire:navigate>
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Invoice Tracking</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('date-wise-invoice-tracking') }}" class="nav-link {{ request()->is('date-wise-invoice-tracking') ? 'active' : '' }}" wire:navigate>
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Date-wise Invoice</p>
                             </a>
                         </li>
                     </ul>

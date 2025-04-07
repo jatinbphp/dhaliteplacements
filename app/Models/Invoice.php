@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Candidate;
+use App\Models\TimeSheetDetails;
 
 class Invoice extends Model
 {
@@ -16,4 +18,14 @@ class Invoice extends Model
         'from_date',
         'to_date',
     ];
+
+    public function candidate()
+    {
+        return $this->belongsTo(Candidate::class, 'candidate_id');
+    }
+
+    public function timeSheetDetails()
+    {
+        return $this->hasMany(TimeSheetDetails::class, 'invoice_id', 'id');
+    }
 }

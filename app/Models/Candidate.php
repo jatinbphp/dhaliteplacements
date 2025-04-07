@@ -179,9 +179,6 @@ class Candidate extends Model
         return $this->hasMany(TimeSheet::class);
     }
 
-    
-
-    // In TimeSheetDetail model
     public function timeSheet()
     {
         return $this->belongsTo(TimeSheet::class);
