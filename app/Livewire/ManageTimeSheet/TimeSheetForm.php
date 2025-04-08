@@ -132,6 +132,20 @@ class TimeSheetForm extends Component
                 'week_end_date' => $this->weekEndDate,
             ];
 
+            $formatedDate = formateDate($this->weekEndDate, 'm-d-Y', 'Y-m-d');
+            $alreadyExists = TimeSheet::where('candidate_id', $this->candidateId)
+                ->where('week_end_date', $formatedDate)
+                ->exists();
+
+            if ($alreadyExists) {
+                $this->dispatch('swal:error', sprintf(
+                    'Data is already added for the week ending <strong>%s</strong> for candidate <strong>%s</strong>.',
+                    $this->weekEndDate,
+                    $this->selectedCandidateData->c_name
+                ));
+                return;
+            }
+
             $timeSheet = TimeSheet::create($filedData);
             $lastInsertedId = $timeSheet->id;
             foreach ($this->weekDate as $day => $date) {
