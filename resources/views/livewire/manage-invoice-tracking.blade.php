@@ -70,22 +70,18 @@
                         <table id="invoice-tracking" class="table table-bordered table-striped datatable-dynamic">
                             <thead>
                                 <tr>
+                                    <th></th>
                                     <th >Full Name</th>
                                     <th>Vendor Company Name</th>
                                     <th>Total Hours</th>
                                     <th>Generated Hours</th>
-                                    <th>Time From, Time To</th>
-                                    <th>#inv Id</th>
-                                    <th>#inv No</th>
                                     <th>Rate</th>
-                                    <th>Generated Date</th>
                                     <th>Invoice Amount</th>
                                     <th>Amount Received</th>
                                     <th>Amount Due</th>
-                                    <th>Mail</th>
+                                    <!-- <th>Mail</th>
                                     <th>Mapping</th>
-                                    <th>Mapping Date</th>
-                                    <th >Action</th>
+                                    <th>Mapping Date</th> -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -140,24 +136,190 @@
                 }
             },
             columns: [
+                {
+                    className: 'dt-control',
+                    orderable: false,
+                    data: null,
+                    defaultContent: ''
+                },
                 { data: 'c_name', name: 'c_name' },
                 { data: 'vendor_company_name', name: 'vendor_company_name' },
                 { data: 'total_hours', name: 'total_hours' },
                 { data: 'generated_hours', name: 'generated_hours' },
-                { data: 'time_from_to', name: 'time_from_to' },
-                { data: 'invoice_id', name: 'invoice_id' },
-                { data: 'invoice_no', name: 'invoice_no' },
-                { data: 'rate', name: 'rate' },
-                { data: 'generated_date', name: 'generated_date' },
+                { data: 'b_rate', name: 'b_rate' },
                 { data: 'invoice_amount', name: 'invoice_amount' },
                 { data: 'received_amount', name: 'received_amount' },
                 { data: 'amount_due', name: 'amount_due' },
-                { data: 'mail', name: 'mail' },
-                { data: 'mapping', name: 'mapping' },
-                { data: 'mapping_date', name: 'mapping_date' },
-                { data: 'actions', name: 'actions', orderable: false, searchable: false },
+                // { data: 'mail', name: 'mail' },
+                // { data: 'mapping', name: 'mapping' },
+                // { data: 'mapping_date', name: 'mapping_date' },
             ],
             "order": [[0, "DESC"]]
+        });
+
+        function format(d) {
+            let uid = `toggleInvoiceWise_${d.id}`;
+            let summaryHtml = generateInvoiceSummaryView(d);
+            let detailedHtml = generateInvoiceDateWiseView(d);
+
+            return `
+                <div>
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input toggle-invoice-wise" type="checkbox" id="${uid}" data-rowid="${d.id}">
+                        <label class="form-check-label" for="${uid}">Show Date Wise</label>
+                    </div>
+                    <div id="content-${d.id}">
+                        ${summaryHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function groupDetailsByInvoice(details = []) {
+            const result = {};
+            details.forEach(detail => {
+                if (!detail.invoice_id) return;
+                const key = detail.invoice_id;
+                if (!result[key]) result[key] = [];
+                result[key].push(detail);
+            });
+            return result;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            if (isNaN(date)) return '-';
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${month}-${day}-${year}`;
+        }
+
+
+        function generateInvoiceSummaryView(d) {
+            const allDetails = (d.time_sheets || []).flatMap(ts => ts.details || []);
+            const grouped = groupDetailsByInvoice(allDetails);
+
+            let rows = '';
+            let index = 1;
+
+            for (const [invoiceId, details] of Object.entries(grouped)) {
+                const invoice = details[0]?.invoice ?? null;
+                const fromDate = formatDate(invoice?.from_date);
+                const toDate = formatDate(invoice?.to_date);
+                const generatedDate = formatDate(invoice?.generated_date);
+                const totalHours = details.reduce((sum, item) => sum + parseFloat(item.hours || 0), 0);
+
+                rows += `
+                    <tr>
+                        <td>${index++}</td>
+                        <td>${invoiceId}</td>
+                        <td>${fromDate}</td>
+                        <td>${toDate}</td>
+                        <td>${generatedDate}</td>
+                        <td>${totalHours.toFixed(2)}</td>
+                        <td><span class="badge bg-success">Invoiced</span></td>
+                    </tr>
+                `;
+            }
+
+            return `
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Invoice ID</th>
+                            <th>Time From</th>
+                            <th>Time To</th>
+                            <th>Generated Date</th>
+                            <th>Total Hours</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        }
+
+        function generateInvoiceDateWiseView(d) {
+            const allDetails = (d.time_sheets || []).flatMap(ts => ts.details || []);
+            const grouped = groupDetailsByInvoice(allDetails);
+
+            let content = '';
+
+            for (const [invoiceId, details] of Object.entries(grouped)) {
+                let rows = '';
+                let total = 0;
+
+                details.forEach((item, idx) => {
+                    total += parseFloat(item.hours || 0);
+                    rows += `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td>${item.date_of_day}</td>
+                            <td>${item.day_name}</td>
+                            <td>${item.hours}</td>
+                            <td>${item.invoice_id || '-'}</td>
+                            <td>
+                                ${item.invoice_id 
+                                    ? `<span class="badge bg-success">Invoiced</span>` 
+                                    : `<span class="badge bg-secondary">Pending</span>`}
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                content += `
+                    <div class="mb-3">
+                        <h6 class="mb-1">Invoice: ${invoiceId === 'unbilled' ? 'Unbilled Entries' : invoiceId}</h6>
+                        <div><strong>Total Hours:</strong> ${total.toFixed(2)}</div>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Date</th>
+                                    <th>Day</th>
+                                    <th>Hours</th>
+                                    <th>Invoice ID</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            return content || `<div>No time sheet entries found.</div>`;
+        }
+
+        table.on('click', 'td.dt-control', function () {
+            let tr = $(this).closest('tr');
+            let row = table.row(tr);
+
+            if (row.child.isShown()) {
+                row.child.hide();
+                tr.removeClass('shown');
+            } else {
+                row.child(format(row.data())).show();
+                tr.addClass('shown');
+
+                let rowId = row.data().id;
+                let rowData = row.data();
+
+                // Now bind the toggle switch and pass in rowData
+                let $toggle = $(`#toggleInvoiceWise_${rowId}`);
+                $toggle.off('change').on('change', function () {
+                    const isChecked = $(this).is(':checked');
+                    const $content = $(`#content-${rowId}`);
+                    if (isChecked) {
+                        $content.html(generateInvoiceDateWiseView(rowData));
+                    } else {
+                        $content.html(generateInvoiceSummaryView(rowData));
+                    }
+                });
+            }
         });
 
         Livewire.on('refreshDataTable', function () {

@@ -57,4 +57,9 @@ class TimeSheetDetails extends Model
     {
         return $this->belongsTo(TimeSheet::class);
     }
+
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class);
+    }
 }
