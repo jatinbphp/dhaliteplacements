@@ -44,7 +44,7 @@
                             <div class="col-md-6">
                                 <div class="container mt-4">
                                     <div class="card card-info card-outline">
-                                        <div class="card-body">
+                                        <div class="card-body" wire:ignore>
                                             <table class="table table-hover">
                                                 <tr>
                                                     <th># of Total Candidates</th>
@@ -52,15 +52,15 @@
                                                 </tr>
                                                 <tr>
                                                     <th># of Total Candidates whose invoice has been generated</th>
-                                                    <td>-</td>
+                                                    <td id="totalUninvoicedCandidates">-</td>
                                                 </tr>
                                                 <tr>
                                                     <th># of Total Timesheet hours in Timecard</th>
-                                                    <td>-</td>
+                                                    <td id="totalTotalHours">-</td>
                                                 </tr>
                                                 <tr>
                                                     <th># of Total generated hours in invoice</th>
-                                                    <td>-</td>
+                                                    <td id="totalInvoicedHours">-</td>
                                                 </tr>
                                             </table>
                                             <div class="mt-3">
@@ -85,16 +85,19 @@
                     </div>
                     <input type="hidden" id="route_name" value="{{ route('invoice.data') }}">
                     <div class="card-body table-responsive" wire:ignore>
-                        <table id="invoice" class="table table-bordered table-striped datatable-dynamic">
+                        <table id="invoice" class="table table-bordered datatable-dynamic">
                             <thead>
                                 <tr>
-                                    <th >Full Name</th>
+                                    <th></th>
+                                    <th>Full Name</th>
                                     <th>Vendor Company Name</th>
                                     <th>User Type</th>
                                     <th>Total Hours</th>
-                                    <th>Time From, Time To</th>
+                                    <th>Inv Hours</th>
+                                    <th>Remaining Hours</th>
+                                   <!--  <th>Time From, Time To</th>
                                     <th>#inv Id</th>
-                                    <th>Generated Date</th>
+                                    <th>Generated Date</th> -->
                                     <th >Action</th>
                                 </tr>
                             </thead>
@@ -177,17 +180,25 @@
                 },
                 dataSrc: function(json) {
                     $('#totalEmployeeCount').text(json.totalCandidates);
+                    $('#totalTotalHours').text(json.totalTotalHours);
+                    $('#totalInvoicedHours').text(json.totalInvoicedHours);
+                    $('#totalUninvoicedCandidates').text(json.totalUninvoicedCandidates);
                     return json.data;
                 }
             },
             columns: [
+                {
+                    className: 'dt-control',
+                    orderable: false,
+                    data: null,
+                    defaultContent: ''
+                },
                 { data: 'c_name', name: 'c_name' },
                 { data: 'vendor_company_name', name: 'vendor_company_name' },
                 { data: 'billing_type', name: 'billing_type' },
                 { data: 'total_hours', name: 'total_hours' },
-                { data: 'time_from_to', name: 'time_from_to' },
-                { data: 'invoice_id', name: 'invoice_id' },
-                { data: 'generated_date', name: 'generated_date' },
+                { data: 'invoiced_hours', name: 'invoiced_hours' },
+                { data: 'remaining_hours', name: 'remaining_hours' },
                 { data: 'actions', name: 'actions', orderable: false, searchable: false },
             ],
             createdRow: function (row, data, dataIndex) {
@@ -201,6 +212,136 @@
             },
             "order": [[0, "DESC"]]
         });
+
+        function format(d) {
+            let uid = `toggleDateWise_${d.id}`; // unique toggle ID based on row ID
+            let summaryHtml = generateSummaryView(d);
+            let detailedHtml = generateDateWiseView(d);
+
+            return `
+                <div>
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input toggle-date-wise" type="checkbox" id="${uid}" data-rowid="${d.id}">
+                        <label class="form-check-label" for="${uid}">Show Date Wise</label>
+                    </div>
+                    <div id="content-${d.id}">
+                        ${summaryHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateSummaryView(d) {
+            let rows = '';
+
+            d.time_sheets.forEach((ts, index) => {
+                let totalHours = 0;
+                let dates = ts.details.map(item => item.date_of_day);
+                let startDate = dates.length ? dates[0] : '-';
+                let endDate = ts.week_end_date || '-';
+
+                ts.details.forEach(detail => {
+                    totalHours += parseFloat(detail.hours || 0);
+                });
+
+                rows += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${startDate}</td>
+                        <td>${endDate}</td>
+                        <td>${totalHours.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            return `
+                <table class="table table-bordered">
+                    <thead >
+                        <tr>
+                            <th>#</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Total Hours</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        }
+
+        function generateDateWiseView(d) {
+            let content = '';
+
+            d.time_sheets.forEach((ts, tsIndex) => {
+                let rows = '';
+                let totalHours = 0;
+
+                ts.details.forEach((detail, index) => {
+                    totalHours += parseFloat(detail.hours || 0);
+                    rows += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${detail.date_of_day}</td>
+                            <td>${detail.day_name}</td>
+                            <td>${detail.hours}</td>
+                            <td>${detail.invoice_id ?? '-'}</td>
+                            <td>${detail.invoice_id ? `<span class="badge bg-success">Invoiced</span>` : `<span class="badge bg-secondary">Pending</span>`}</td>
+                        </tr>
+                    `;
+                });
+
+                content += `
+                    <div class="mb-3">
+                        <h6 class="mb-1">Timesheet #${tsIndex + 1} (Week End: <strong>${ts.week_end_date}</strong>)</h6>
+                        <div><strong>Total Hours:</strong> ${totalHours.toFixed(2)}</div>
+                        <table class="table table-bordered">
+                            <thead >
+                                <tr>
+                                    <th>#</th>
+                                    <th>Date</th>
+                                    <th>Day</th>
+                                    <th>Hours</th>
+                                    <th>Invoice ID</th>
+                                    <th>Invoice Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                `;
+            });
+
+            return content;
+        }
+    
+        table.on('click', 'td.dt-control', function () {
+            let tr = $(this).closest('tr');
+            let row = table.row(tr);
+
+            if (row.child.isShown()) {
+                row.child.hide();
+                tr.removeClass('shown');
+            } else {
+                row.child(format(row.data())).show();
+                tr.addClass('shown');
+
+                let rowId = row.data().id;
+                let rowData = row.data();
+
+                // Now bind the toggle switch and pass in rowData
+                let $toggle = $(`#toggleDateWise_${rowId}`);
+                $toggle.off('change').on('change', function () {
+                    const isChecked = $(this).is(':checked');
+                    const $content = $(`#content-${rowId}`);
+                    if (isChecked) {
+                        $content.html(generateDateWiseView(rowData));
+                    } else {
+                        $content.html(generateSummaryView(rowData));
+                    }
+                });
+            }
+        });
+
 
         Livewire.on('refreshDataTable', function () {
             table.ajax.reload();

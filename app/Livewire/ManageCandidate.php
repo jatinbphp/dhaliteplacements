@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Candidate;
+use App\Models\TimeSheetDetails;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -13,6 +14,7 @@ class ManageCandidate extends Component
     public $menu;
     public $breadcrumb;
     public $activeMenu;
+    public $statusWiseHoursNotInvoicedCandidateData = [];
 
     public function render()
     {
@@ -21,6 +23,7 @@ class ManageCandidate extends Component
             ['route' => 'dashboard', 'title' => 'Dashboard'],
         ];
         $this->activeMenu = 'Candidate';
+        $this->prepareStatusWiseHoursNotInvoicedCandidateData();
 
         return view('livewire.manage-candidate')->extends('layouts.app');
     }
@@ -122,5 +125,96 @@ class ManageCandidate extends Component
             })
             ->rawColumns(['actions'])
             ->make(true);
+    }
+
+    public function prepareStatusWiseHoursNotInvoicedCandidateData()
+    {
+        $startDate = Carbon::now()->subMonths(6)->startOfMonth();
+        $endDate = Carbon::now()->endOfMonth();
+
+        $data = TimeSheetDetails::query()
+            ->selectRaw("
+                candidates.status,
+                CASE 
+                    WHEN time_sheet_details.date_of_day < ? THEN 'before'
+                    ELSE DATE_FORMAT(time_sheet_details.date_of_day, '%Y-%m')
+                END as month,
+                SUM(time_sheet_details.hours) as total_hours
+            ", [$startDate])
+            ->join('time_sheets', 'time_sheets.id', '=', 'time_sheet_details.time_sheet_id')
+            ->join('candidates', 'candidates.id', '=', 'time_sheets.candidate_id')
+            ->whereNull('time_sheet_details.invoice_id')
+            ->groupBy('candidates.status', 'month')
+            ->orderBy('month')
+            ->get();
+
+        $formattedDate = $this->formateData($data);
+        $this->statusWiseHoursNotInvoicedCandidateData = $this->prepareNotInvoicedTableData($formattedDate);
+    }
+
+    public function formateData($data)
+    {
+        $months = collect(['before'])->merge(
+            collect(range(0, 8))->map(fn ($i) => Carbon::now()->subMonths(8 - $i)->format('Y-m'))
+        );
+
+        $formatted = [];
+
+        foreach ($data as $row) {
+            $formatted[$row->status][$row->month] = $row->total_hours;
+        }
+
+        foreach ($formatted as $status => &$monthData) {
+            foreach ($months as $month) {
+                if (!isset($monthData[$month])) {
+                    $monthData[$month] = 0;
+                }
+            }
+
+            $monthData = collect($months)->mapWithKeys(fn ($m) => [$m => $monthData[$m]])->toArray();
+        }
+
+        return $formatted;
+    }
+
+    public function prepareNotInvoicedTableData($rawData)
+    {
+        $statusLabels = Candidate::candidateStatus;
+
+        $months = collect($rawData)->first()
+            ? array_keys(collect($rawData)->first())
+            : [];
+
+        $rows = [];
+        $statusTotals = array_fill_keys(array_keys($statusLabels), 0);
+        $grandTotal = 0;
+
+        foreach ($months as $month) {
+            $row = [
+                'label' => $month === 'before'
+                    ? 'Before'
+                    : Carbon::parse($month . '-01')->format('M') .
+                        ($month === now()->format('Y-m') ? ' (Current Month)' : ''),
+                'values' => [],
+                'total' => 0,
+            ];
+
+            foreach ($statusLabels as $status => $label) {
+                $value = $rawData[$status][$month] ?? 0;
+                $row['values'][$status] = $value;
+                $row['total'] += $value;
+                $statusTotals[$status] += $value;
+            }
+
+            $grandTotal += $row['total'];
+            $rows[] = $row;
+        }
+
+        return [
+            'rows' => $rows,
+            'statusLabels' => $statusLabels,
+            'statusTotals' => $statusTotals,
+            'grandTotal' => $grandTotal,
+        ];
     }
 }

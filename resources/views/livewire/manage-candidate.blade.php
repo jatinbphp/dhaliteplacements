@@ -20,7 +20,242 @@
                             </div>
                         </div>
                     </div>
+                    <div class="card-header">
+                        <div class="row w-100 align-items-center">
+                            <div class="col-md-4">
+                                @php
+                                    $rows = $statusWiseHoursNotInvoicedCandidateData['rows'] ?? [];
+                                    $statusLabels = $statusWiseHoursNotInvoicedCandidateData['statusLabels'] ?? [];
+                                    $statusTotals = $statusWiseHoursNotInvoicedCandidateData['statusTotals'] ?? [];
+                                    $grandTotal = $statusWiseHoursNotInvoicedCandidateData['grandTotal'] ?? 0;
+                                @endphp
 
+                                <table class="table table-bordered table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Hours Not Invoiced</th>
+                                            @foreach ($statusLabels as $label)
+                                                <th>{{ $label }}</th>
+                                            @endforeach
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($rows as $row)
+                                            <tr>
+                                                <td>{{ $row['label'] }}</td>
+                                                @foreach ($statusLabels as $status => $label)
+                                                    <td>{{ $row['values'][$status] > 0 ? number_format($row['values'][$status], 2) : '' }}</td>
+                                                @endforeach
+                                                <td>{{ $row['total'] > 0 ? number_format($row['total'], 2) : '' }}</td>
+                                            </tr>
+                                        @endforeach
+
+                                        <tr class="fw-bold">
+                                            <td>Total</td>
+                                            @foreach ($statusLabels as $status => $label)
+                                                <td>{{ number_format($statusTotals[$status], 2) }}</td>
+                                            @endforeach
+                                            <td>{{ number_format($grandTotal, 2) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- Amount Pending -->
+                            <div class="col-md-4">
+                                <table class="table table-bordered table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Amount Pending</th>
+                                            <th>Active</th>
+                                            <th>Proj End</th>
+                                            <th>Clear</th>
+                                            <th>Not Clear</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Before</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Aug</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Sept</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Oct</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Nov</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Dec</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Jan</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Feb</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>March (Current Month)</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr class="fw-bold">
+                                            <td>Total</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Hours Due -->
+                            <div class="col-md-4">
+                                <table class="table table-bordered table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Hours Due</th>
+                                            <th>Active</th>
+                                            <th>Proj End</th>
+                                            <th>Clear</th>
+                                            <th>Not Clear</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Before</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Aug</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Sept</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Oct</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr><td>Nov</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Dec</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Jan</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr><td>Feb</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>March (Current Month)</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr class="fw-bold">
+                                            <td>Total</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                     <input type="hidden" id="route_name" value="{{ route('candidate.data') }}">
                     <div class="card-body table-responsive" wire:ignore>
                         <table id="candidate" class="table table-bordered table-striped datatable-dynamic">

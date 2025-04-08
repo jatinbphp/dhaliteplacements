@@ -62,7 +62,7 @@
                                                     <div class="form-group">
                                                         <label>Select Week-End Date: <span class="text-danger">*</span></label>
                                                         <input placeholder="Please Select Date" type="text" class="form-control datepicker" id="week-end-date" wire:model='weekEndDate'>
-                                                        @error('visaStartDate') <span class="text-danger">{{ $message }}</span> @enderror
+                                                        @error('weekEndDate') <span class="text-danger">{{ $message }}</span> @enderror
                                                     </div>
                                                 </div>
                                                 @if($weekDate)
@@ -70,7 +70,7 @@
                                                         <div class="col-md-1">
                                                             <div class="form-group">
                                                                <center><label>{{ucfirst($day)}}:</label></center>
-                                                                <input type="number" class="form-control" wire:model="weekDays.{{ $day }}" min="0" max="24" step="0.5">
+                                                                <input type="number" class="form-control" wire:keyup="updateDate" wire:model="weekDays.{{ $day }}" min="0" max="24" step="0.5">
                                                                 @error(strtolower($day)) <span class="text-danger">{{ $message }}</span> @enderror
                                                                 <center><label>{{$date}}</label></center>
                                                             </div>

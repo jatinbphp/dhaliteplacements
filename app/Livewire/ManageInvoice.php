@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Candidate;
 use App\Models\TimeSheetDetails;
+use Illuminate\Support\Facades\DB;
 use App\Models\Invoice;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Http\Request;
@@ -59,20 +60,109 @@ class ManageInvoice extends Component
             $billingOption = $request->billingOption;
         }
 
-        $candidatesQuery = Candidate::select('id', 'c_name', 'b_company_id', 'billing_type')
-            ->with(['bCompany', 'timeSheets' => function ($query) use ($startDate, $endDate) {
+        DB::statement("SET SQL_MODE=''");
+        // $totalHoursQuery = DB::table('time_sheet_details')
+        //     ->selectRaw('COALESCE(SUM(hours), 0)')
+        //     ->join('time_sheets', 'time_sheets.id', '=', 'time_sheet_details.time_sheet_id')
+        //     ->whereColumn('time_sheets.candidate_id', 'candidates.id')
+        //     ->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
+
+        // $invoicedHoursQuery = DB::table('time_sheet_details')
+        //     ->selectRaw('COALESCE(SUM(hours), 0)')
+        //     ->join('time_sheets', 'time_sheets.id', '=', 'time_sheet_details.time_sheet_id')
+        //     ->whereColumn('time_sheets.candidate_id', 'candidates.id')
+        //     ->whereNotNull('invoice_id')
+        //     ->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
+        // $candidatesQuery = Candidate::select('candidates.id', 'candidates.c_name', 'candidates.b_company_id', 'candidates.billing_type')
+        //     ->with(['bCompany'])
+        //     ->with(['timeSheets' => function ($query) use ($startDate, $endDate) {
+        //         $query->with(['details' => function ($q) use ($startDate, $endDate) {
+        //             if ($startDate && $endDate) {
+        //                 $q->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
+        //             }
+        //         }]);
+        //     }])
+        //     ->addSelect([
+        //         'total_hours' => $totalHoursQuery,
+        //         'invoiced_hours' => $invoicedHoursQuery,
+        //         'remaining_hours' => DB::table(DB::raw("(
+        //                 SELECT 
+        //                     COALESCE(SUM(hours), 0) AS total
+        //                 FROM time_sheet_details
+        //                 JOIN time_sheets ON time_sheets.id = time_sheet_details.time_sheet_id
+        //                 WHERE time_sheets.candidate_id = candidates.id
+        //                 AND time_sheet_details.date_of_day BETWEEN ? AND ?
+        //             ) AS total_hours_sub"))
+        //             ->selectRaw("(total - IFNULL((
+        //                 SELECT 
+        //                     SUM(hours) 
+        //                 FROM time_sheet_details
+        //                 JOIN time_sheets ON time_sheets.id = time_sheet_details.time_sheet_id
+        //                 WHERE time_sheets.candidate_id = candidates.id
+        //                 AND time_sheet_details.invoice_id IS NOT NULL
+        //                 AND time_sheet_details.date_of_day BETWEEN ? AND ?
+        //             ), 0))", [$startDate, $endDate, $startDate, $endDate])
+        //     ])
+        //     ->when(($startDate && $endDate), function ($query) use ($startDate, $endDate) {
+        //         $query->where(function ($subQuery) use ($startDate, $endDate) {
+        //             $subQuery->whereHas('timeSheets.details', function ($q) use ($startDate, $endDate) {
+        //                 $q->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
+        //             })
+        //             ->orWhereHas('timeSheets.details', function ($q) use ($startDate) {
+        //                 $q->whereNull('invoice_id')
+        //                   ->where('time_sheet_details.date_of_day', '<', $startDate);
+        //             });
+        //         });
+        //     })
+        //     ->when($billingOption && $billingOption != 'both', function ($query) use ($billingOption) {
+        //         $query->where('candidates.billing_type', $billingOption);
+        //     })->whereHas('timeSheets')   
+        //     ->groupBy(
+        //         'candidates.id',
+        //         'candidates.c_name',
+        //         'candidates.b_company_id',
+        //         'candidates.billing_type',
+        //     );
+
+        // $totalCandidates = (clone $candidatesQuery)->get()->count();
+        // $totalTotalHours = (clone $candidatesQuery)->get()->sum('total_hours');
+        // $totalInvoicedHours = (clone $candidatesQuery)->get()->sum('invoiced_hours');
+        // $totalUninvoicedCandidates = (clone $candidatesQuery)
+        //     ->get()
+        //     ->filter(fn ($c) => $c->invoiced_hours == 0)
+        //     ->count();
+
+        $totalHoursQuery = DB::table('time_sheet_details')
+            ->selectRaw('COALESCE(SUM(hours), 0)')
+            ->join('time_sheets', 'time_sheets.id', '=', 'time_sheet_details.time_sheet_id')
+            ->whereColumn('time_sheets.candidate_id', 'candidates.id')
+            ->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
+
+        $invoicedHoursQuery = DB::table('time_sheet_details')
+            ->selectRaw('COALESCE(SUM(hours), 0)')
+            ->join('time_sheets', 'time_sheets.id', '=', 'time_sheet_details.time_sheet_id')
+            ->whereColumn('time_sheets.candidate_id', 'candidates.id')
+            ->whereNotNull('invoice_id')
+            ->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
+
+        $candidatesQuery = Candidate::select(
+                'candidates.id',
+                'candidates.c_name',
+                'candidates.b_company_id',
+                'candidates.billing_type'
+            )
+            ->with(['bCompany'])
+            ->with(['timeSheets' => function ($query) use ($startDate, $endDate) {
                 $query->with(['details' => function ($q) use ($startDate, $endDate) {
-                    // Apply the date filter only if both dates are provided
                     if ($startDate && $endDate) {
                         $q->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
                     }
                 }]);
             }])
-            // ->when(($startDate && $endDate), function ($query) use ($startDate, $endDate) {
-            //     $query->whereHas('timeSheets.details', function ($q) use ($startDate, $endDate) {
-            //         $q->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
-            //     });
-            // })
+            ->addSelect([
+                'total_hours' => $totalHoursQuery,
+                'invoiced_hours' => $invoicedHoursQuery,
+            ])
             ->when(($startDate && $endDate), function ($query) use ($startDate, $endDate) {
                 $query->where(function ($subQuery) use ($startDate, $endDate) {
                     $subQuery->whereHas('timeSheets.details', function ($q) use ($startDate, $endDate) {
@@ -84,20 +174,34 @@ class ManageInvoice extends Component
                     });
                 });
             })
-            ->when($billingOption && $billingOption != 'both', function ($query) use ($billingOption) {
+            ->when($billingOption && $billingOption !== 'both', function ($query) use ($billingOption) {
                 $query->where('candidates.billing_type', $billingOption);
-            })->whereHas('timeSheets')   
+            })
+            ->whereHas('timeSheets')
             ->groupBy(
                 'candidates.id',
                 'candidates.c_name',
                 'candidates.b_company_id',
-                'candidates.billing_type',
+                'candidates.billing_type'
             );
 
-        $totalCandidates = (clone $candidatesQuery)->get()->count();
+        // Run query and compute aggregates
+        $results = (clone $candidatesQuery)->get();
+
+        // Calculate derived field (remaining_hours) in PHP
+        $results->each(function ($candidate) {
+            $candidate->remaining_hours = $candidate->total_hours - $candidate->invoiced_hours;
+        });
+
+        // Totals
+        $totalCandidates = $results->count();
+        $totalTotalHours = $results->sum('total_hours');
+        $totalInvoicedHours = $results->sum('invoiced_hours');
+        $totalUninvoicedCandidates = $results->filter(fn ($c) => $c->invoiced_hours == 0)->count();
+
 
         return DataTables::of($candidatesQuery)
-            ->with(['totalCandidates' => $totalCandidates])
+            ->with(['totalCandidates' => $totalCandidates, 'totalTotalHours' => $totalTotalHours, 'totalInvoicedHours' => $totalInvoicedHours, 'totalUninvoicedCandidates' => $totalUninvoicedCandidates])
             ->editColumn('c_name', function ($row) {
                 $billingType = $this->billingOptions[$row->billing_type] ?? '';
                 $candidateName = $row->c_name ?? '';
@@ -110,26 +214,17 @@ class ManageInvoice extends Component
             ->addColumn('vendor_company_name', function ($row) {
                 return $row->bCompany->company_name ?? '';
             })
-            ->addColumn('total_hours', function ($row) {
-                return $row->timeSheets->flatMap(function ($sheet) {
-                    return $sheet->details->pluck('hours');
-                })->sum() ?? 0;
-            })
             ->editColumn('billing_type', function ($row) {
                 return $this->billingOptions[$row->billing_type] ?? '';
             })
-            ->addColumn('generated_hours', function ($row) {
-                return $row->timeSheets->flatMap(function ($sheet) {
-                    return $sheet->details->pluck('hours');
-                })->sum();
-            })->addColumn('time_from_to', function ($row) {
-                return '';
+            ->addColumn('total_hours', function ($row) {
+                return $row->total_hours ?? 0;
             })
-            ->addColumn('invoice_id', function ($row) {
-                return optional($row->timeSheets->first())->invoice_id ?? '';
+            ->addColumn('remaining_hours', function ($row) {
+                return $row->remaining_hours;
             })
-            ->addColumn('generated_date', function ($row) {
-                return optional($row->timeSheets->first())->generated_date ?? '';
+            ->addColumn('invoiced_hours', function ($row) {
+                return $row->invoiced_hours;
             })
             ->addColumn('actions', function ($row) {
                 return view('livewire.manage-invoice.actions', ['data' => $row]);
@@ -137,6 +232,51 @@ class ManageInvoice extends Component
             ->addColumn('status', function ($row) use ($startDate, $endDate) {
                 $statusData = isPreviousInvoiceDueOrDone($row->id, $startDate, $endDate);
                 return $statusData['status'] ?? 0;
+            })
+            ->filterColumn('vendor_company_name', function ($query, $keyword) {
+                $query->whereHas('bCompany', function ($q) use ($keyword) {
+                    $q->where('company_name', 'like', "%$keyword%");
+                });
+            })->orderColumn('vendor_company_name', function ($query, $order) {
+                $query->join('b_companies', 'b_companies.id', '=', 'candidates.b_company_id')
+                      ->orderBy('b_companies.company_name', $order);
+            })->orderColumn('total_hours', function ($query, $order) use ($startDate, $endDate) {
+                $query->orderByRaw("(
+                    SELECT COALESCE(SUM(hours), 0)
+                    FROM time_sheet_details
+                    JOIN time_sheets ON time_sheets.id = time_sheet_details.time_sheet_id
+                    WHERE time_sheets.candidate_id = candidates.id
+                    AND time_sheet_details.date_of_day BETWEEN ? AND ?
+                ) $order", [$startDate, $endDate]);
+            })
+            ->orderColumn('invoiced_hours', function ($query, $order) use ($startDate, $endDate) {
+                $query->orderByRaw("(
+                    SELECT COALESCE(SUM(hours), 0)
+                    FROM time_sheet_details
+                    JOIN time_sheets ON time_sheets.id = time_sheet_details.time_sheet_id
+                    WHERE time_sheets.candidate_id = candidates.id
+                    AND time_sheet_details.invoice_id IS NOT NULL
+                    AND time_sheet_details.date_of_day BETWEEN ? AND ?
+                ) $order", [$startDate, $endDate]);
+            })
+            ->orderColumn('remaining_hours', function ($query, $order) use ($startDate, $endDate) {
+                $query->orderByRaw("(
+                    (
+                        SELECT COALESCE(SUM(hours), 0)
+                        FROM time_sheet_details
+                        JOIN time_sheets ON time_sheets.id = time_sheet_details.time_sheet_id
+                        WHERE time_sheets.candidate_id = candidates.id
+                        AND time_sheet_details.date_of_day BETWEEN ? AND ?
+                    ) - 
+                    IFNULL((
+                        SELECT SUM(hours)
+                        FROM time_sheet_details
+                        JOIN time_sheets ON time_sheets.id = time_sheet_details.time_sheet_id
+                        WHERE time_sheets.candidate_id = candidates.id
+                        AND time_sheet_details.invoice_id IS NOT NULL
+                        AND time_sheet_details.date_of_day BETWEEN ? AND ?
+                    ), 0)
+                ) $order", [$startDate, $endDate, $startDate, $endDate]);
             })
             ->rawColumns(['actions', 'c_name'])
             ->make(true);

@@ -69,6 +69,11 @@ class TimeSheetForm extends Component
         $this->dispatch('initPlugins');
     }
 
+    public function updateDate()
+    {
+        $this->weekDays = array_map(fn($v) => $v === "" ? "0.00" : $v, $this->weekDays);
+    }
+
     public function manageTimeSheetData()
     {
         $selectedCandidateData = Candidate::where('id', $this->candidateId)->first();
@@ -82,6 +87,9 @@ class TimeSheetForm extends Component
 
     public function manageWeekData()
     {
+        if(!$this->weekEndDate){
+            return;
+        }
         $weekEnd = Carbon::createFromFormat('m-d-Y', $this->weekEndDate);
         $weekStart = $weekEnd->copy()->subDays(6);
 
@@ -112,8 +120,8 @@ class TimeSheetForm extends Component
 
             foreach ($timeSheetData as $data) {
                 $day = $data->day_name ?? '';
-                $hours = $this->weekDays[$day] ?? 0;
                 $data->hours = $this->weekDays[$day] ?? 0;
+                $data->date_of_day = $this->weekDate[$day] ?? 0;
                 $data->save();
             }
 
