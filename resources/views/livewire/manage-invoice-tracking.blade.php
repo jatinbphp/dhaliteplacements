@@ -48,7 +48,7 @@
                                             <table class="table table-hover">
                                                 <tr>
                                                     <th>Amount Invoiced</th>
-                                                    <td>-</td>
+                                                    <td id="totalInvoiceAmount">-</td>
                                                 </tr>
                                                 <tr>
                                                     <th>Amount Received</th>
@@ -56,7 +56,7 @@
                                                 </tr>
                                                 <tr>
                                                     <th>Amount Due</th>
-                                                    <td>-</td>
+                                                    <td id="totalAmountDue">-</td>
                                                 </tr>
                                             </table>
                                         </div>
@@ -133,6 +133,11 @@
                     d.selectedCandidateIds = @this.get('selectedCandidateIds');
                     d.dateRange = @this.get('dateRange');
                     d.billingOption = @this.get('billingTypeId');
+                },
+                dataSrc: function(json) {
+                    $('#totalInvoiceAmount').text(json.totalInvoiceAmount);
+                    $('#totalAmountDue').text(json.totalInvoiceAmount);
+                    return json.data;
                 }
             },
             columns: [

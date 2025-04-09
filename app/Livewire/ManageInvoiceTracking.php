@@ -77,52 +77,57 @@ class ManageInvoiceTracking extends Component
                 $query->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
             });
 
-        return DataTables::of(
-            Candidate::select('candidates.id', 'candidates.c_name', 'candidates.b_company_id', 'candidates.b_rate', 'candidates.billing_type')
-                ->with([
-                    'bCompany',
-                    'timeSheets' => function ($query) use ($startDate, $endDate) {
-                        $query->with([
-                            'details' => function ($q) use ($startDate, $endDate) {
-                                $q->whereNotNull('invoice_id');
+        $candidatesQuery = Candidate::select('candidates.id', 'candidates.c_name', 'candidates.b_company_id', 'candidates.b_rate', 'candidates.billing_type')
+            ->with([
+                'bCompany',
+                'timeSheets' => function ($query) use ($startDate, $endDate) {
+                    $query->with([
+                        'details' => function ($q) use ($startDate, $endDate) {
+                            $q->whereNotNull('invoice_id');
 
-                                if ($startDate && $endDate) {
-                                    $q->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
-                                }
+                            if ($startDate && $endDate) {
+                                $q->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
+                            }
 
-                                $q->with('invoice'); // load invoice data
-                            },
-                        ]);
-                    },
-                ])->addSelect([
-                    'total_hours' => $totalHoursQuery,
-                    'generated_hours' => $generatedHoursQuery,
-                    'invoice_amount' => $invoiceAmountQuery
-                ])
-                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    $query->whereHas('timeSheets.details', function ($q) use ($startDate, $endDate) {
-                        $q->whereNotNull('invoice_id')
-                          ->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
-                    });
-                }, function ($query) {
-                    $query->whereHas('timeSheets.details', function ($q) {
-                        $q->whereNotNull('invoice_id');
-                    });
-                })
-                ->when($billingOption && $billingOption != 'both', function ($query) use ($billingOption) {
-                    $query->where('candidates.billing_type', $billingOption);
-                })
-                ->whereHas('timeSheets.details', function ($q) {
+                            $q->with('invoice'); // load invoice data
+                        },
+                    ]);
+                },
+            ])->addSelect([
+                'total_hours' => $totalHoursQuery,
+                'generated_hours' => $generatedHoursQuery,
+                'invoice_amount' => $invoiceAmountQuery
+            ])
+            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+                $query->whereHas('timeSheets.details', function ($q) use ($startDate, $endDate) {
+                    $q->whereNotNull('invoice_id')
+                      ->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
+                });
+            }, function ($query) {
+                $query->whereHas('timeSheets.details', function ($q) {
                     $q->whereNotNull('invoice_id');
-                })
-                ->groupBy(
-                    'candidates.id',
-                    'candidates.c_name',
-                    'candidates.b_company_id',
-                    'candidates.b_rate',
-                    'candidates.billing_type'
-                )
-            )->editColumn('c_name', function ($row) {
+                });
+            })
+            ->when($billingOption && $billingOption != 'both', function ($query) use ($billingOption) {
+                $query->where('candidates.billing_type', $billingOption);
+            })
+            ->whereHas('timeSheets.details', function ($q) {
+                $q->whereNotNull('invoice_id');
+            })
+            ->groupBy(
+                'candidates.id',
+                'candidates.c_name',
+                'candidates.b_company_id',
+                'candidates.b_rate',
+                'candidates.billing_type'
+            );
+
+        $results = (clone $candidatesQuery)->get();
+        $totalInvoiceAmount = number_format($results->sum('invoice_amount') ?? 0, 2);
+
+        return DataTables::of($candidatesQuery)
+            ->with(['totalInvoiceAmount' => $totalInvoiceAmount])
+            ->editColumn('c_name', function ($row) {
                 $billingType = $this->billingOptions[$row->billing_type] ?? '';
                 $candidateName = $row->c_name ?? '';
 

@@ -210,3 +210,7 @@
     border-color: #6c757d;
     background-color: #343a40;
 }
+
+.table-striped table.table tbody tr:nth-of-type(odd) {
+    background-color: transparent !important;
+}

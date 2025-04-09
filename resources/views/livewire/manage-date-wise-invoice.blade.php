@@ -33,6 +33,7 @@
                                     <th>Inv Amt</th>
                                     <th>Map$</th>
                                     <th>Due$</th>
+                                    <th>Past Due$</th>
                                     <th>Due In</th>
                                     <th>Sent Days</th>
                                     <th>Net Terms</th>
@@ -72,13 +73,14 @@
                 { data: 'inv_amt', name: 'inv_amt' },
                 { data: 'map', name: 'map' },
                 { data: 'due', name: 'due' },
+                { data: 'past_due', name: 'past_due' },
                 { data: 'due_in', name: 'due_in' },
                 { data: 'sent_days', name: 'sent_days' },
                 { data: 'net_terms', name: 'net_terms' },
                 { data: 'payment_id', name: 'payment_id' },
                 { data: 'ttl_hr_due', name: 'ttl_hr_due' },
             ],
-            "order": [[13, "ASC"]]
+            "order": [[14, "ASC"]]
         });
 
         Livewire.on('refreshDataTable', function () {

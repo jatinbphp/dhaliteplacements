@@ -22,6 +22,9 @@ use App\Livewire\ManageTimeSheet\TimeSheetForm;
 use App\Livewire\ManageInvoiceTracking;
 use App\Livewire\ManageInvoice;
 use App\Livewire\ManageDateWiseInvoice;
+use App\Livewire\ManagePayment;
+use App\Livewire\ManagePayment\PaymentForm;
+use App\Livewire\ManageVendorWiseData;
 
 Route::get('/login', Login::class)->name('login')->middleware('guest');
 
@@ -101,4 +104,14 @@ Route::middleware(['auth'])->group(function () {
 	Route::get('/date-wise-invoice-tracking-data', [ManageDateWiseInvoice::class, 'getDateWiseInvoiceTrackingData'])->name('date-wise-invoice-tracking.data');
 	/* Manage Invoice Tracking End */
 
+	/* Manage Payment Start */
+	Route::get('/payment', ManagePayment::class)->name('payment');
+	Route::get('/payment-data', [ManagePayment::class, 'getTimeSheetData'])->name('payment.data');
+	Route::get('/payment/create', PaymentForm::class)->name('payment.create');
+	/* Manage Payment End */
+
+	/* Manage Vendor wise Data Start */
+	Route::get('/vendor-wise', ManageVendorWiseData::class)->name('vendor-wise');
+	Route::get('/vendor-wise-data', [ManageVendorWiseData::class, 'getVendorWiseData'])->name('vendor-wise.data');
+	/* Manage Vendor wise Data End */
 });

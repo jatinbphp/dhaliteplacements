@@ -108,6 +108,12 @@
                     </ul>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ route('payment') }}" class="nav-link {{ request()->is('payment') ? 'active' : '' }}" wire:navigate>
+                        <i class="nav-icon fa fa-dollar-sign"></i>
+                        <p>Payment</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ route('visa') }}" class="nav-link {{ request()->is('visa') ? 'active' : '' }}" wire:navigate>
                         <i class="nav-icon fa fa-passport"></i>
                         <p>Visa</p>
@@ -117,6 +123,12 @@
                     <a href="{{ route('time-sheet') }}" class="nav-link {{ request()->is('time-sheet') ? 'active' : '' }}" wire:navigate>
                         <i class="nav-icon fa fa-clock"></i>
                         <p>Time Sheet</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('vendor-wise') }}" class="nav-link {{ request()->is('vendor-wise') ? 'active' : '' }}" wire:navigate>
+                        <i class="nav-icon fa fa-industry"></i>
+                        <p>Vendor wise Data</p>
                     </a>
                 </li>
 

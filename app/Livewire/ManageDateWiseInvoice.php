@@ -55,7 +55,17 @@ class ManageDateWiseInvoice extends Component
                     (SELECT candidates.b_due_terms_id FROM candidates WHERE candidates.id = invoices.candidate_id)
                     - DATEDIFF(CURDATE(), invoices.generated_date)
                 ) as due_in'),
-                DB::raw('DATEDIFF(CURDATE(), invoices.generated_date) as sent_days')
+                DB::raw('DATEDIFF(CURDATE(), invoices.generated_date) as sent_days'),
+                DB::raw('
+                    CASE
+                        WHEN (
+                            (SELECT candidates.b_due_terms_id FROM candidates WHERE candidates.id = invoices.candidate_id)
+                            - DATEDIFF(CURDATE(), invoices.generated_date)
+                        ) < 0 THEN
+                            (SELECT SUM(hours) FROM time_sheet_details WHERE invoice_id = invoices.id) * candidates.b_rate
+                        ELSE 0
+                    END as past_due
+                '),
             ])
         )->filter(function ($query) use ($request) {
             if ($request->has('search') && $search = $request->get('search')['value']) {
@@ -132,6 +142,9 @@ class ManageDateWiseInvoice extends Component
         ->addColumn('ttl_hr_due', function () {
             return '';
         })
+        ->addColumn('past_due', function($row) {
+            return number_format($row->past_due, 2);
+        })
         ->orderColumn('candidate_name', function ($query, $order) {
             $query->orderBy('candidates.c_name', $order);
         })
@@ -165,7 +178,9 @@ class ManageDateWiseInvoice extends Component
         ->orderColumn('net_terms', function ($query, $order) {
             $query->orderBy('net_terms', $order);
         })
-        
+        ->orderColumn('past_due', function ($query, $order) {
+            $query->orderBy('past_due', $order);
+        })
         ->rawColumns(['due_in'])
         ->make(true);
 
