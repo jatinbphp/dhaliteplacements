@@ -263,6 +263,7 @@
 
     Livewire.on('closeMappAmount', function (event) {
         $('#mappingAmountModal').modal('hide')
+        $('#mappedAmount').val('');
         $('#mappingModal').modal('hide');
         $('#payment').DataTable().ajax.reload(null, false);
     });

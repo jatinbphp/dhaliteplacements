@@ -33,6 +33,7 @@ class ManagePayment extends Component
 
     public function getPaymentData()
     {
+        DB::statement("SET SQL_MODE=''");
         return DataTables::of(
             Payment::query()
                 ->leftJoin('b_companies', 'payments.vendor_id', '=', 'b_companies.id')

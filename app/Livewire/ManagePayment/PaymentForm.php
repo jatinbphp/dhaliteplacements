@@ -50,6 +50,7 @@ class PaymentForm extends Component
         if(!$this->vendorId){
             return [];
         }
+        DB::statement("SET SQL_MODE=''");
         $this->candidateData = DB::table('candidates')
             ->select([
                 'candidates.id',

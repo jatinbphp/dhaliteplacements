@@ -35,6 +35,7 @@ class ManageDateWiseInvoice extends Component
         $statusData = Candidate::candidateStatus;
         $candidateTypes = Candidate::candidateType;
 
+        DB::statement("SET SQL_MODE=''");
         return DataTables::of(
             Invoice::leftJoin('candidates', 'candidates.id', '=', 'invoices.candidate_id')
             ->leftJoin('b_companies', 'b_companies.id', '=', 'candidates.b_company_id')
@@ -56,16 +57,6 @@ class ManageDateWiseInvoice extends Component
                     - DATEDIFF(CURDATE(), invoices.generated_date)
                 ) as due_in'),
                 DB::raw('DATEDIFF(CURDATE(), invoices.generated_date) as sent_days'),
-                DB::raw('
-                    CASE
-                        WHEN (
-                            (SELECT candidates.b_due_terms_id FROM candidates WHERE candidates.id = invoices.candidate_id)
-                            - DATEDIFF(CURDATE(), invoices.generated_date)
-                        ) < 0 THEN
-                            (SELECT SUM(hours) FROM time_sheet_details WHERE invoice_id = invoices.id) * invoices.rate
-                        ELSE 0
-                    END as past_due
-                '),
                 DB::raw('SUM(payment_mappings.amount) as mapped_amt'),
                 DB::raw('
                     (
@@ -73,6 +64,19 @@ class ManageDateWiseInvoice extends Component
                         - (SELECT COALESCE(SUM(payment_mappings.amount), 0) FROM payment_mappings WHERE invoice_id = invoices.id)
                     ) as due_amt
                 '),
+                DB::raw('
+                    CASE
+                        WHEN (
+                            (SELECT candidates.b_due_terms_id FROM candidates WHERE candidates.id = invoices.candidate_id)
+                            - DATEDIFF(CURDATE(), invoices.generated_date)
+                        ) < 0 THEN
+                            (
+                                (SELECT SUM(hours) FROM time_sheet_details WHERE invoice_id = invoices.id) * invoices.rate
+                                - (SELECT COALESCE(SUM(payment_mappings.amount), 0) FROM payment_mappings WHERE invoice_id = invoices.id)
+                            )
+                        ELSE 0
+                    END as past_due
+                ')
             ])
             ->groupBy(
                 'invoices.id',
