@@ -38,18 +38,18 @@ class ManageDateWiseInvoice extends Component
         return DataTables::of(
             Invoice::leftJoin('candidates', 'candidates.id', '=', 'invoices.candidate_id')
             ->leftJoin('b_companies', 'b_companies.id', '=', 'candidates.b_company_id')
+            ->leftJoin('payment_mappings', 'payment_mappings.invoice_id', '=', 'invoices.id')
             ->select([
                 'invoices.*',
                 'candidates.c_name as candidate_name',
                 'candidates.status as candidate_status',
                 'candidates.candidate_type as candidate_type',
-                'candidates.b_rate as rate',
                 'b_companies.company_name as b_vender',
                 'candidates.b_due_terms_id as net_terms',
                 DB::raw('(SELECT SUM(hours) FROM time_sheet_details WHERE invoice_id = invoices.id) as inv_hr'),
                 DB::raw('(
                     (SELECT SUM(hours) FROM time_sheet_details WHERE invoice_id = invoices.id)
-                    * candidates.b_rate
+                    * invoices.rate
                 ) as inv_amt'),
                 DB::raw('(
                     (SELECT candidates.b_due_terms_id FROM candidates WHERE candidates.id = invoices.candidate_id)
@@ -62,11 +62,23 @@ class ManageDateWiseInvoice extends Component
                             (SELECT candidates.b_due_terms_id FROM candidates WHERE candidates.id = invoices.candidate_id)
                             - DATEDIFF(CURDATE(), invoices.generated_date)
                         ) < 0 THEN
-                            (SELECT SUM(hours) FROM time_sheet_details WHERE invoice_id = invoices.id) * candidates.b_rate
+                            (SELECT SUM(hours) FROM time_sheet_details WHERE invoice_id = invoices.id) * invoices.rate
                         ELSE 0
                     END as past_due
                 '),
+                DB::raw('SUM(payment_mappings.amount) as mapped_amt'),
+                DB::raw('
+                    (
+                        ((SELECT SUM(hours) FROM time_sheet_details WHERE invoice_id = invoices.id) * invoices.rate)
+                        - (SELECT COALESCE(SUM(payment_mappings.amount), 0) FROM payment_mappings WHERE invoice_id = invoices.id)
+                    ) as due_amt
+                '),
             ])
+            ->groupBy(
+                'invoices.id',
+                'candidates.id',
+                'b_companies.id'
+            )
         )->filter(function ($query) use ($request) {
             if ($request->has('search') && $search = $request->get('search')['value']) {
                 $query->where(function ($q) use ($search) {
@@ -79,8 +91,8 @@ class ManageDateWiseInvoice extends Component
                       ->orWhere('invoices.from_date', 'like', "%{$search}%")
                       ->orWhere('invoices.to_date', 'like', "%{$search}%")
                       ->orWhere(DB::raw('(SELECT SUM(hours) FROM time_sheet_details WHERE invoice_id = invoices.id)'), 'like', "%{$search}%")
-                      ->orWhere('candidates.b_rate', 'like', "%{$search}%")
-                      ->orWhere(DB::raw('((SELECT SUM(hours) FROM time_sheet_details WHERE invoice_id = invoices.id) * candidates.b_rate)'), 'like', "%{$search}%")
+                      ->orWhere('invoices.rate', 'like', "%{$search}%")
+                      ->orWhere(DB::raw('((SELECT SUM(hours) FROM time_sheet_details WHERE invoice_id = invoices.id) * invoices.rate)'), 'like', "%{$search}%")
                       ->orWhere(DB::raw('DATEDIFF(CURDATE(), invoices.generated_date)'), 'like', "%{$search}%");
                 });
             }
@@ -118,11 +130,11 @@ class ManageDateWiseInvoice extends Component
         ->addColumn('inv_amt', function ($row) {
             return number_format($row->inv_amt ?? 0, 2);
         })
-        ->addColumn('map', function () {
-            return '';
+        ->addColumn('map', function ($row) {
+            return number_format($row->mapped_amt ?? 0, 2);
         })
-        ->addColumn('due', function () {
-            return '';
+        ->addColumn('due', function ($row) {
+            return number_format($row->due_amt ?? 0, 2);
         })
         ->addColumn('due_in', function ($row) {
             $dueIn = $row->due_in ?? 0;
@@ -181,8 +193,13 @@ class ManageDateWiseInvoice extends Component
         ->orderColumn('past_due', function ($query, $order) {
             $query->orderBy('past_due', $order);
         })
+        ->orderColumn('map', function ($query, $order) {
+            $query->orderBy('mapped_amt', $order);
+        })
+        ->orderColumn('due', function ($query, $order) {
+            $query->orderBy('due_amt', $order);
+        })
         ->rawColumns(['due_in'])
         ->make(true);
-
     }
 }

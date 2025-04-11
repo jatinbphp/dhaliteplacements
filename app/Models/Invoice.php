@@ -17,6 +17,7 @@ class Invoice extends Model
         'generated_date',
         'from_date',
         'to_date',
+        'rate',
     ];
 
     public function candidate()

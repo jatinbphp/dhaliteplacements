@@ -76,15 +76,23 @@
                 <tr>
                     <td>${index + 1}</td>
                     <td>${c.c_name}</td>
-                    <td>${c.active_status_candidate}</td>
-                    <td>${c.project_end_status_candidate}</td>
+                    <td>
+                        <span class="text-${c.active_status_candidate == 1 ? 'success' : 'danger'}">
+                            <i class="fa ${c.active_status_candidate == 1 ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                        </span>
+                    </td>
+                    <td>
+                        <span class="text-${c.project_end_status_candidate == 1 ? 'success' : 'danger'}">
+                            <i class="fa ${c.project_end_status_candidate == 1 ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                        </span>
+                    </td>
                     <td>${parseFloat(c.rem_hrs || 0).toFixed(2)}</td>
                     <td></td>
-                    <td>${parseFloat(c.amt_invoiced || 0).toFixed(2)}</td>
+                    <td>${Number(c.amt_invoiced || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     <td></td>
                     <td></td>
-                    <td>${parseFloat(c.past_due || 0).toFixed(2)}</td>
                     <td>${parseFloat(c.past_due_hours || 0).toFixed(2)}</td>
+                    <td>${Number(c.past_due || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 </tr>
             `).join('');
 

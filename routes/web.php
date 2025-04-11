@@ -106,7 +106,7 @@ Route::middleware(['auth'])->group(function () {
 
 	/* Manage Payment Start */
 	Route::get('/payment', ManagePayment::class)->name('payment');
-	Route::get('/payment-data', [ManagePayment::class, 'getTimeSheetData'])->name('payment.data');
+	Route::get('/payment-data', [ManagePayment::class, 'getPaymentData'])->name('payment.data');
 	Route::get('/payment/create', PaymentForm::class)->name('payment.create');
 	/* Manage Payment End */
 

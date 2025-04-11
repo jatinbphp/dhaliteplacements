@@ -69,15 +69,30 @@ class ManageInvoiceTracking extends Component
             });
 
         $invoiceAmountQuery = DB::table('time_sheet_details')
-            ->selectRaw('COALESCE(SUM(hours), 0) * candidates.b_rate')
+            ->selectRaw('COALESCE(SUM(hours), 0) * invoices.rate')
             ->join('time_sheets', 'time_sheets.id', '=', 'time_sheet_details.time_sheet_id')
+            ->join('invoices', 'invoices.id', '=', 'time_sheet_details.invoice_id')
             ->whereColumn('time_sheets.candidate_id', 'candidates.id')
             ->whereNotNull('invoice_id')
             ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                 $query->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
             });
 
-        $candidatesQuery = Candidate::select('candidates.id', 'candidates.c_name', 'candidates.b_company_id', 'candidates.b_rate', 'candidates.billing_type')
+        $mappedAmountQuery = DB::table('payment_mappings')
+            ->selectRaw('COALESCE(SUM(payment_mappings.amount), 0)')
+            ->whereIn('payment_mappings.invoice_id', function ($sub) use ($startDate, $endDate) {
+                $sub->select('time_sheet_details.invoice_id')
+                    ->from('time_sheet_details')
+                    ->join('time_sheets', 'time_sheets.id', '=', 'time_sheet_details.time_sheet_id')
+                    ->whereColumn('time_sheets.candidate_id', 'candidates.id')
+                    ->whereNotNull('time_sheet_details.invoice_id')
+                    ->when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
+                        $q->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
+                    })
+                    ->groupBy('time_sheet_details.invoice_id');
+            });
+
+        $candidatesQuery = Candidate::select('candidates.id', 'candidates.c_name', 'candidates.b_company_id', 'candidates.billing_type')
             ->with([
                 'bCompany',
                 'timeSheets' => function ($query) use ($startDate, $endDate) {
@@ -88,15 +103,23 @@ class ManageInvoiceTracking extends Component
                             if ($startDate && $endDate) {
                                 $q->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
                             }
+                            $q->with('invoice');
 
-                            $q->with('invoice'); // load invoice data
                         },
                     ]);
                 },
-            ])->addSelect([
+            ])
+            ->addSelect([
                 'total_hours' => $totalHoursQuery,
                 'generated_hours' => $generatedHoursQuery,
-                'invoice_amount' => $invoiceAmountQuery
+                'invoice_amount' => $invoiceAmountQuery,
+                'mapped_amount' => $mappedAmountQuery,
+                'amount_due' => DB::raw('
+                    ( 
+                        (' . $invoiceAmountQuery->toSql() . ') - 
+                        (' . $mappedAmountQuery->toSql() . ') 
+                    ) as amount_due
+                ')
             ])
             ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                 $query->whereHas('timeSheets.details', function ($q) use ($startDate, $endDate) {
@@ -118,15 +141,16 @@ class ManageInvoiceTracking extends Component
                 'candidates.id',
                 'candidates.c_name',
                 'candidates.b_company_id',
-                'candidates.b_rate',
                 'candidates.billing_type'
             );
 
         $results = (clone $candidatesQuery)->get();
         $totalInvoiceAmount = number_format($results->sum('invoice_amount') ?? 0, 2);
+        $totalReceivedAmount = number_format($results->sum('mapped_amount') ?? 0, 2);
+        $totalDueAmount = number_format($results->sum('amount_due') ?? 0, 2);
 
         return DataTables::of($candidatesQuery)
-            ->with(['totalInvoiceAmount' => $totalInvoiceAmount])
+            ->with(['totalInvoiceAmount' => $totalInvoiceAmount, 'totalReceivedAmount' => $totalReceivedAmount, 'totalDueAmount' => $totalDueAmount])
             ->editColumn('c_name', function ($row) {
                 $billingType = $this->billingOptions[$row->billing_type] ?? '';
                 $candidateName = $row->c_name ?? '';
@@ -144,23 +168,14 @@ class ManageInvoiceTracking extends Component
             ->addColumn('generated_hours', function ($row) {
                 return $row->generated_hours;
             })
-            ->editColumn('b_rate', function ($row) {
-                return $row->b_rate ?? '';
-            })
             ->addColumn('invoice_amount', function ($row) {
                 return $row->invoice_amount ? number_format($row->invoice_amount, 2) : 0;
             })
             ->addColumn('received_amount', function ($row) {
-                $receiveAmount = 0;
-                return $receiveAmount;
+                return number_format($row->mapped_amount ?? 0, 2);
             })
             ->addColumn('amount_due', function ($row) {
-                $hours = $row->timeSheets->flatMap(function ($sheet) {
-                    return $sheet->details->pluck('hours');
-                })->sum();
-                $amount =  ($hours * $row->b_rate);
-                $receiveAmount = 0;
-                return number_format($amount - $receiveAmount);
+                return number_format($row->amount_due ?? 0, 2);
             })
             // ->addColumn('mail', function ($row) {
             //     return '';
@@ -209,14 +224,22 @@ class ManageInvoiceTracking extends Component
                     : '';
 
                 $query->orderByRaw("(
-                    SELECT COALESCE(SUM(hours), 0) * candidates.b_rate
+                    SELECT COALESCE(SUM(hours), 0) * invoices.rate
                     FROM time_sheet_details
                     JOIN time_sheets ON time_sheets.id = time_sheet_details.time_sheet_id
+                    JOIN invoices ON invoices.id = time_sheet_details.invoice_id
                     WHERE time_sheets.candidate_id = candidates.id
                     AND time_sheet_details.invoice_id IS NOT NULL
                     $whereClause
                 ) $order");
-            })->rawColumns(['c_name'])
+            })
+             ->orderColumn('received_amount',function ($query, $order) {
+                $query->orderBy('mapped_amount', $order);
+            })
+            ->orderColumn('amount_due',function ($query, $order) {
+                $query->orderBy('amount_due', $order);
+            })
+            ->rawColumns(['c_name'])
             ->make(true);
     }
 

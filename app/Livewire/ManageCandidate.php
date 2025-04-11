@@ -32,18 +32,32 @@ class ManageCandidate extends Component
     {
         $candidateType = Candidate::candidateType;
         DB::statement("SET SQL_MODE=''");
+        $mappedSubquery = DB::table('payment_mappings')
+            ->select('invoices.candidate_id', DB::raw('SUM(payment_mappings.amount) as mapped_rec_amt'))
+            ->join('invoices', 'invoices.id', '=', 'payment_mappings.invoice_id')
+            ->groupBy('invoices.candidate_id');
+
         return DataTables::of(
             Candidate::select([
                 'candidates.*',
                 DB::raw('SUM(time_sheet_details.hours) as total_hours'),
                 DB::raw('SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours ELSE 0 END) as hr_inv'),
                 DB::raw('SUM(time_sheet_details.hours) - SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours ELSE 0 END) as rem_hrs'),
-                DB::raw('SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours ELSE 0 END) * candidates.b_rate as amt_inv'),
+                DB::raw('SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours ELSE 0 END) * invoices.rate as amt_inv'),
                 DB::raw('MIN(time_sheet_details.date_of_day) as start_date'),
                 DB::raw('MAX(time_sheet_details.date_of_day) as last_time'),
+                DB::raw('GROUP_CONCAT(DISTINCT time_sheet_details.invoice_id) as invoice_ids'),
+                DB::raw('COALESCE(mapped_pm.mapped_rec_amt, 0) as mapped_rec_amt'),
+                DB::raw('(SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours ELSE 0 END) * invoices.rate - COALESCE(mapped_pm.mapped_rec_amt, 0)) as due_rec_amt'),
+                DB::raw('ROUND((SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours ELSE 0 END) * invoices.rate - COALESCE(mapped_pm.mapped_rec_amt, 0)) / NULLIF(invoices.rate, 0), 2) as hrs_due'),
+
             ])
             ->leftJoin('time_sheets', 'time_sheets.candidate_id', '=', 'candidates.id')
             ->leftJoin('time_sheet_details', 'time_sheet_details.time_sheet_id', '=', 'time_sheets.id')
+            ->leftJoin('invoices', 'invoices.id', '=', 'time_sheet_details.invoice_id')
+            ->leftJoinSub($mappedSubquery, 'mapped_pm', function ($join) {
+                $join->on('mapped_pm.candidate_id', '=', 'candidates.id');
+            })
             ->groupBy('candidates.id')
             ->with('visa', 'bCompany')
         )
@@ -66,13 +80,13 @@ class ManageCandidate extends Component
             })->addColumn('last_time', function ($row) {
                 return $row->last_time ? Carbon::parse($row->last_time)->format('d-m-Y') : '';
             })->addColumn('amt_inv', function ($row) {
-                return number_format($row->amt_inv, 2) ?? 0;
+                return number_format($row->amt_inv  ?? 0, 2);
             })->addColumn('mapped_rec_amt', function ($row) {
-                return '';
+                return number_format($row->mapped_rec_amt ?? 0, 2);
             })->addColumn('due_rec_amt', function ($row) {
-                return '';
+                return number_format($row->due_rec_amt ?? 0, 2);
             })->addColumn('hrs_due', function ($row) {
-                return '';
+                return $row->hrs_due;
             })->addColumn('start_date', function ($row) {
                 return $row->start_date ? Carbon::parse($row->start_date)->format('d-m-Y') : '';
             })->addColumn('actions', function ($row) {
@@ -108,9 +122,9 @@ class ManageCandidate extends Component
             })->orderColumn('rem_hrs', function ($query, $order) {
                 $query->orderByRaw('(SUM(time_sheet_details.hours) - SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours ELSE 0 END)) ' . $order);
             })->filterColumn('amt_inv', function ($query, $keyword) {
-                $query->havingRaw('(SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours ELSE 0 END) * candidates.b_rate) like ?', ["%{$keyword}%"]);
+                $query->havingRaw('(SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours ELSE 0 END) * invoices.rate) like ?', ["%{$keyword}%"]);
             })->orderColumn('amt_inv', function ($query, $order) {
-                $query->orderByRaw('(SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours ELSE 0 END) * candidates.b_rate) ' . $order);
+                $query->orderByRaw('(SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours ELSE 0 END) * invoices.rate) ' . $order);
             })->filterColumn('start_date', function ($query, $keyword) {
                 $query->havingRaw('MIN(time_sheet_details.date_of_day) like ?', ["%{$keyword}%"]);
             })
@@ -122,6 +136,15 @@ class ManageCandidate extends Component
             })
             ->orderColumn('last_time', function ($query, $order) {
                 $query->orderByRaw('MAX(time_sheet_details.date_of_day) ' . $order);
+            })
+            ->orderColumn('mapped_rec_amt',function ($query, $order) {
+                $query->orderBy('mapped_rec_amt', $order);
+            })
+            ->orderColumn('due_rec_amt',function ($query, $order) {
+                $query->orderBy('due_rec_amt', $order);
+            })
+            ->orderColumn('hrs_due',function ($query, $order) {
+                $query->orderBy('hrs_due', $order);
             })
             ->rawColumns(['actions'])
             ->make(true);
@@ -154,23 +177,24 @@ class ManageCandidate extends Component
 
     public function formateData($data)
     {
+        $statuses = array_keys(Candidate::candidateStatus);
         $months = collect(['before'])->merge(
             collect(range(0, 8))->map(fn ($i) => Carbon::now()->subMonths(8 - $i)->format('Y-m'))
         );
 
         $formatted = [];
 
+        foreach ($statuses as $status) {
+            foreach ($months as $month) {
+                $formatted[$status][$month] = 0;
+            }
+        }
+
         foreach ($data as $row) {
             $formatted[$row->status][$row->month] = $row->total_hours;
         }
 
         foreach ($formatted as $status => &$monthData) {
-            foreach ($months as $month) {
-                if (!isset($monthData[$month])) {
-                    $monthData[$month] = 0;
-                }
-            }
-
             $monthData = collect($months)->mapWithKeys(fn ($m) => [$m => $monthData[$m]])->toArray();
         }
 

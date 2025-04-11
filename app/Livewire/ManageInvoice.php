@@ -320,8 +320,9 @@ class ManageInvoice extends Component
             }
 
             $candidateId = $this->invoiceData['candidate']['id'] ?? 0;
+            $rate = $this->invoiceData['candidate']['b_rate'] ?? 0;
 
-            if (!$startDate || !$endDate || !$candidateId) {
+            if (!$startDate || !$endDate || !$candidateId || !$rate) {
                 $this->dispatch('swal:error', 'Missing required fields! Please check date range and candidate.');
                 return;
             }
@@ -331,6 +332,7 @@ class ManageInvoice extends Component
                 'generated_date' => Carbon::now()->format('Y-m-d'),
                 'from_date' => $startDate,
                 'to_date' => $endDate,
+                'rate' => $rate,
             ]);
 
             TimeSheetDetails::whereHas('timeSheet', function ($query) use ($candidateId) {

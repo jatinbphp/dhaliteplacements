@@ -36,14 +36,8 @@ class ManageVendorWiseData extends Component
                 DB::raw('COUNT(DISTINCT candidates.id) as total_candidate'),
                 DB::raw('COUNT(DISTINCT CASE WHEN candidates.status = ' . Candidate::STATUS_ACTIVE . ' THEN candidates.id END) as active_status_candidate'),
                 DB::raw('COUNT(DISTINCT CASE WHEN candidates.status = ' . Candidate::STATUS_PROJECT_END . ' THEN candidates.id END) as project_end_status_candidate'),
-                DB::raw('SUM(time_sheet_details.hours) as total_hours'),
-                DB::raw('SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours ELSE 0 END) as hr_inv'),
                 DB::raw('SUM(time_sheet_details.hours) - SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours ELSE 0 END) as rem_hrs'),
                 DB::raw('SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours ELSE 0 END * candidates.b_rate) as amt_invoiced'),
-                DB::raw('MIN(time_sheet_details.date_of_day) as start_date'),
-                DB::raw('MAX(time_sheet_details.date_of_day) as last_time'),
-
-                // Safe fallback past_due amount logic per vendor (SUM only over overdue candidates)
                 DB::raw('SUM(
                     CASE
                         WHEN candidates.b_due_terms_id - DATEDIFF(CURDATE(), invoices.generated_date) < 0 THEN
@@ -71,17 +65,11 @@ class ManageVendorWiseData extends Component
                     ->select([
                         'candidates.id',
                         'candidates.c_name',
-                        'candidates.status',
                         'candidates.b_rate',
-                        DB::raw('COUNT(DISTINCT candidates.id) as total_candidate'),
                         DB::raw('COUNT(DISTINCT CASE WHEN candidates.status = ' . Candidate::STATUS_ACTIVE . ' THEN candidates.id END) as active_status_candidate'),
                         DB::raw('COUNT(DISTINCT CASE WHEN candidates.status = ' . Candidate::STATUS_PROJECT_END . ' THEN candidates.id END) as project_end_status_candidate'),
-                        DB::raw('SUM(time_sheet_details.hours) as total_hours'),
-                        DB::raw('SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours ELSE 0 END) as hr_inv'),
                         DB::raw('SUM(time_sheet_details.hours) - SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours ELSE 0 END) as rem_hrs'),
                         DB::raw('SUM(CASE WHEN time_sheet_details.invoice_id IS NOT NULL THEN time_sheet_details.hours * candidates.b_rate ELSE 0 END) as amt_invoiced'),
-                        DB::raw('MIN(time_sheet_details.date_of_day) as start_date'),
-                        DB::raw('MAX(time_sheet_details.date_of_day) as last_time'),
                         DB::raw('SUM(
                             CASE
                                 WHEN candidates.b_due_terms_id - DATEDIFF(CURDATE(), invoices.generated_date) < 0 THEN

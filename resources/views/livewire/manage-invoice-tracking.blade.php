@@ -52,11 +52,11 @@
                                                 </tr>
                                                 <tr>
                                                     <th>Amount Received</th>
-                                                    <td>-</td>
+                                                    <td id="totalReceivedAmount">-</td>
                                                 </tr>
                                                 <tr>
                                                     <th>Amount Due</th>
-                                                    <td id="totalAmountDue">-</td>
+                                                    <td id="totalDueAmount">-</td>
                                                 </tr>
                                             </table>
                                         </div>
@@ -75,7 +75,7 @@
                                     <th>Vendor Company Name</th>
                                     <th>Total Hours</th>
                                     <th>Generated Hours</th>
-                                    <th>Rate</th>
+                                    <!-- <th>Rate</th> -->
                                     <th>Invoice Amount</th>
                                     <th>Amount Received</th>
                                     <th>Amount Due</th>
@@ -136,7 +136,8 @@
                 },
                 dataSrc: function(json) {
                     $('#totalInvoiceAmount').text(json.totalInvoiceAmount);
-                    $('#totalAmountDue').text(json.totalInvoiceAmount);
+                    $('#totalDueAmount').text(json.totalDueAmount);
+                    $('#totalReceivedAmount').text(json.totalReceivedAmount);
                     return json.data;
                 }
             },
@@ -151,7 +152,7 @@
                 { data: 'vendor_company_name', name: 'vendor_company_name' },
                 { data: 'total_hours', name: 'total_hours' },
                 { data: 'generated_hours', name: 'generated_hours' },
-                { data: 'b_rate', name: 'b_rate' },
+                // { data: 'b_rate', name: 'b_rate' },
                 { data: 'invoice_amount', name: 'invoice_amount' },
                 { data: 'received_amount', name: 'received_amount' },
                 { data: 'amount_due', name: 'amount_due' },
@@ -215,6 +216,7 @@
                 const toDate = formatDate(invoice?.to_date);
                 const generatedDate = formatDate(invoice?.generated_date);
                 const totalHours = details.reduce((sum, item) => sum + parseFloat(item.hours || 0), 0);
+                const rate = invoice?.rate
 
                 rows += `
                     <tr>
@@ -223,6 +225,7 @@
                         <td>${fromDate}</td>
                         <td>${toDate}</td>
                         <td>${generatedDate}</td>
+                        <td>${rate}</td>
                         <td>${totalHours.toFixed(2)}</td>
                         <td><span class="badge bg-success">Invoiced</span></td>
                     </tr>
@@ -238,6 +241,7 @@
                             <th>Time From</th>
                             <th>Time To</th>
                             <th>Generated Date</th>
+                            <th>Rate</th>
                             <th>Total Hours</th>
                             <th>Status</th>
                         </tr>
