@@ -74,6 +74,13 @@ class ManageInvoice extends Component
             ->whereNotNull('invoice_id')
             ->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
 
+        $remainingHoursQuery = TimeSheetDetails::selectRaw('
+                COALESCE(SUM(CASE WHEN invoice_id IS NULL THEN hours ELSE 0 END), 0)
+            ')
+            ->join('time_sheets', 'time_sheets.id', '=', 'time_sheet_details.time_sheet_id')
+            ->whereColumn('time_sheets.candidate_id', 'candidates.id')
+            ->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
+
         $candidatesQuery = Candidate::select(
                 'candidates.id',
                 'candidates.c_name',
@@ -91,6 +98,7 @@ class ManageInvoice extends Component
             ->addSelect([
                 'total_hours' => $totalHoursQuery,
                 'invoiced_hours' => $invoicedHoursQuery,
+                        'remaining_hours' => $remainingHoursQuery,
             ])
             ->when(($startDate && $endDate), function ($query) use ($startDate, $endDate) {
                 $query->where(function ($subQuery) use ($startDate, $endDate) {

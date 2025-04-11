@@ -51,7 +51,7 @@
                                                     <td id="totalEmployeeCount">-</td>
                                                 </tr>
                                                 <tr>
-                                                    <th># of Total Candidates whose invoice has been generated</th>
+                                                    <th># of Total Candidates whose invoice has not been generated</th>
                                                     <td id="totalUninvoicedCandidates">-</td>
                                                 </tr>
                                                 <tr>
