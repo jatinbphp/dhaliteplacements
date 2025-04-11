@@ -211,12 +211,24 @@
             let index = 1;
 
             for (const [invoiceId, details] of Object.entries(grouped)) {
-                const invoice = details[0]?.invoice ?? null;
-                const fromDate = formatDate(invoice?.from_date);
-                const toDate = formatDate(invoice?.to_date);
-                const generatedDate = formatDate(invoice?.generated_date);
-                const totalHours = details.reduce((sum, item) => sum + parseFloat(item.hours || 0), 0);
-                const rate = invoice?.rate
+                const invoice = details[0]?.invoice ?? {};
+                const fromDate = formatDate(invoice.from_date ?? '');
+                const toDate = formatDate(invoice.to_date ?? '');
+                const generatedDate = formatDate(invoice.generated_date ?? '');
+                const rate = parseFloat(invoice.rate ?? 0);
+                const totalHours = details.reduce((sum, item) => sum + parseFloat(item.hours ?? 0), 0);
+                const amountInvoiced = totalHours * rate;
+                const receivedAmount = (invoice.payment_mappings ?? []).reduce(
+                    (sum, p) => sum + parseFloat(p.amount ?? 0),
+                    0
+                );
+                const dueAmount = amountInvoiced - receivedAmount;
+
+                const statusBadge = dueAmount <= 0
+                    ? `<span class="badge bg-success">Paid</span>`
+                    : receivedAmount > 0
+                        ? `<span class="badge bg-warning text-dark">Partially Paid</span>`
+                        : `<span class="badge bg-danger">Unpaid</span>`;
 
                 rows += `
                     <tr>
@@ -227,7 +239,10 @@
                         <td>${generatedDate}</td>
                         <td>${rate}</td>
                         <td>${totalHours.toFixed(2)}</td>
-                        <td><span class="badge bg-success">Invoiced</span></td>
+                        <td>${amountInvoiced.toFixed(2)}</td>
+                        <td>${receivedAmount.toFixed(2)}</td>
+                        <td>${dueAmount.toFixed(2)}</td>
+                        <td>${statusBadge}</td>
                     </tr>
                 `;
             }
@@ -243,6 +258,9 @@
                             <th>Generated Date</th>
                             <th>Rate</th>
                             <th>Total Hours</th>
+                            <th>Invoice Amount</th>
+                            <th>Received Amount</th>
+                            <th>Due Amount</th>
                             <th>Status</th>
                         </tr>
                     </thead>

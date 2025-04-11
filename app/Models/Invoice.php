@@ -29,4 +29,14 @@ class Invoice extends Model
     {
         return $this->hasMany(TimeSheetDetails::class, 'invoice_id', 'id');
     }
+
+    public function paymentMappings()
+    {
+        return $this->hasMany(PaymentMapping::class, 'invoice_id');
+    }
+
+    public function getReceivedAmountAttribute()
+    {
+        return $this->paymentMappings->sum('amount');
+    }
 }

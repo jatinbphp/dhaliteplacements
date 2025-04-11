@@ -103,7 +103,7 @@ class ManageInvoiceTracking extends Component
                             if ($startDate && $endDate) {
                                 $q->whereBetween('time_sheet_details.date_of_day', [$startDate, $endDate]);
                             }
-                            $q->with('invoice');
+                            $q->with(['invoice.paymentMappings']);
 
                         },
                     ]);
